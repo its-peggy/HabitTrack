@@ -46,19 +46,19 @@ public class StartActivity extends AppCompatActivity {
     private void goMainActivity() {
         Intent i = new Intent(this, MainActivity.class);
         startActivity(i);
-        finish(); // removes LoginActivity from stack
+        finish();
     }
 
     private void goLoginActivity() {
         Intent i = new Intent(this, LoginActivity.class);
         startActivity(i);
-        finish(); // removes LoginActivity from stack
+        finish();
     }
 
     private void goRegisterActivity() {
         Intent i = new Intent(this, RegisterActivity.class);
         startActivity(i);
-        finish(); // removes LoginActivity from stack
+        finish();
     }
 
 }

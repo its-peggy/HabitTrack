@@ -51,7 +51,7 @@ public class RegisterActivity extends AppCompatActivity {
     private void registerUser(String username, String password, String firstName, String lastName) {
         // Create the ParseUser
         ParseUser user = new ParseUser();
-        // Set core properties
+        // Set properties
         user.setUsername(username);
         user.setPassword(password);
         user.put("firstName", firstName);
@@ -72,6 +72,6 @@ public class RegisterActivity extends AppCompatActivity {
     private void goMainActivity() {
         Intent i = new Intent(this, MainActivity.class);
         startActivity(i);
-        finish(); // removes RegisterActivity from stack
+        finish();
     }
 }
