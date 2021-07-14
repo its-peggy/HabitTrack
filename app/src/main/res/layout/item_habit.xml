@@ -92,7 +92,7 @@
         android:layout_marginStart="12dp"
         android:layout_marginTop="2dp"
         android:layout_toEndOf="@+id/ivIcon"
-        app:srcCompat="@drawable/ic_fi_rr_folder" />
+        app:srcCompat="@drawable/ic_fi_rr_label" />
 
     <TextView
         android:id="@+id/tvTag"

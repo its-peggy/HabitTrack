@@ -1,4 +1,4 @@
-package com.example.habittrack;
+package com.example.habittrack.models;
 
 import com.parse.ParseClassName;
 import com.parse.ParseFile;

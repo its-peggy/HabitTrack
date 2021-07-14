@@ -2,6 +2,8 @@ package com.example.habittrack;
 
 import android.app.Application;
 
+import com.example.habittrack.models.Habit;
+import com.example.habittrack.models.Location;
 import com.parse.Parse;
 import com.parse.ParseObject;
 

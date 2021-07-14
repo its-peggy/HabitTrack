@@ -13,7 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.example.habittrack.Habit;
+import com.example.habittrack.models.Habit;
 import com.example.habittrack.HabitsAdapter;
 import com.example.habittrack.R;
 import com.parse.FindCallback;
