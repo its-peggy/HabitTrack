@@ -19,6 +19,7 @@ import com.example.habittrack.R;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
+import com.parse.ParseUser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,7 +65,9 @@ public class HomeFragment extends Fragment {
         ParseQuery<Habit> query = ParseQuery.getQuery(Habit.class);
         // include data referred by user key -- Q: why is this not included by default? Is it a "shallow" query by default?
         query.include(Habit.KEY_USER); // is this a pointer to a User object?
-        // order posts by creation date (newest first)
+        // TODO: order habits alphabetically?
+        // only show habits of current user
+        query.whereEqualTo(Habit.KEY_USER, ParseUser.getCurrentUser());
         // start an asynchronous call for posts
         query.findInBackground(new FindCallback<Habit>() {
             @Override
