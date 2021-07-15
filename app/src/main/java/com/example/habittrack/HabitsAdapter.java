@@ -35,6 +35,7 @@ import okhttp3.internal.http2.Header;
 public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private static final int HEADER_VIEW = 1;
+    private static final int SECTION_HEADER_VIEW = 2;
     private Context context;
     private List<Habit> habits;
 
@@ -51,6 +52,10 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             view = LayoutInflater.from(context).inflate(R.layout.item_home_header, parent, false);
             return new HeaderViewHolder(view);
         }
+        else if (viewType == SECTION_HEADER_VIEW) {
+            view = LayoutInflater.from(context).inflate(R.layout.item_home_section_header, parent, false);
+            return new SectionHeaderViewHolder(view);
+        }
         else {
             view = LayoutInflater.from(context).inflate(R.layout.item_habit, parent, false);
             return new HabitViewHolder(view);
@@ -65,7 +70,15 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 vh.bind();
             } else if (holder instanceof HabitViewHolder) {
                 HabitViewHolder vh = (HabitViewHolder) holder;
-                vh.bind(habits.get(position-1));
+                if (position > 3) {
+                    vh.bind(habits.get(position-2));
+                }
+                else {
+                    vh.bind(habits.get(position-1));
+                }
+            } else if (holder instanceof SectionHeaderViewHolder) {
+                SectionHeaderViewHolder vh = (SectionHeaderViewHolder) holder;
+                vh.bind();
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -75,7 +88,8 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     @Override
     public int getItemCount() {
         if (habits != null) {
-            return habits.size() + 1;
+            // return habits.size() + 1;
+            return habits.size() + 2;
         }
         return 0;
     }
@@ -85,6 +99,12 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         if (position == 0) {
             return HEADER_VIEW;
         }
+
+        /////
+        if (position == 3) {
+            return SECTION_HEADER_VIEW;
+        }
+
         return super.getItemViewType(position);
     }
 
@@ -223,6 +243,20 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             tvHeaderDate.setText(formatter.format(now));
         }
 
+    }
+
+    class SectionHeaderViewHolder extends RecyclerView.ViewHolder {
+
+        private TextView tvSectionName;
+
+        public SectionHeaderViewHolder(@NonNull View itemView) {
+            super(itemView);
+            tvSectionName = itemView.findViewById(R.id.tvSectionName);
+        }
+
+        public void bind() {
+            tvSectionName.setText("SECTION HEADER TEST");
+        }
     }
 
     public LocalDateTime convertToLocalDateTime(Date date) {
