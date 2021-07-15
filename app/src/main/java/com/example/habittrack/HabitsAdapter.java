@@ -18,17 +18,23 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.example.habittrack.models.Habit;
+import com.example.habittrack.models.Progress;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.SortedMap;
 
 import okhttp3.internal.http2.Header;
 
@@ -37,11 +43,16 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private static final int HEADER_VIEW = 1;
     private static final int SECTION_HEADER_VIEW = 2;
     private Context context;
+    private Map<Habit, Progress> habitProgressMap = new HashMap<>();
     private List<Habit> habits;
+    private List<Progress> progresses;
 
-    public HabitsAdapter(Context context, List<Habit> habits) {
+    public static int TYPE_OF_SORT;
+
+    public HabitsAdapter(Context context, List<Habit> habits, List<Progress> progresses) {
         this.context = context;
         this.habits = habits;
+        this.progresses = progresses;
     }
 
     @NonNull
@@ -70,12 +81,8 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 vh.bind();
             } else if (holder instanceof HabitViewHolder) {
                 HabitViewHolder vh = (HabitViewHolder) holder;
-                if (position > 3) {
-                    vh.bind(habits.get(position-2));
-                }
-                else {
-                    vh.bind(habits.get(position-1));
-                }
+                Log.d("onBindViewHolder", "habits size " + habits.size() + " progresses size " + progresses.size());
+                vh.bind(habits.get(position-1), progresses.get(position-1));
             } else if (holder instanceof SectionHeaderViewHolder) {
                 SectionHeaderViewHolder vh = (SectionHeaderViewHolder) holder;
                 vh.bind();
@@ -88,8 +95,7 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     @Override
     public int getItemCount() {
         if (habits != null) {
-            // return habits.size() + 1;
-            return habits.size() + 2;
+            return habits.size() + 1;
         }
         return 0;
     }
@@ -99,12 +105,9 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         if (position == 0) {
             return HEADER_VIEW;
         }
-
-        /////
-        if (position == 3) {
-            return SECTION_HEADER_VIEW;
-        }
-
+//        if (position == 1) {
+//            return SECTION_HEADER_VIEW;
+//        }
         return super.getItemViewType(position);
     }
 
@@ -128,7 +131,7 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             itemView.setOnClickListener(this);
         }
 
-        public void bind(Habit habit) {
+        public void bind(Habit habit, Progress progress) {
             ParseFile icon = habit.getIcon();
             if (icon != null) {
                 Glide.with(context)
@@ -137,11 +140,12 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                         .into(ivIcon);
             }
             tvHabitName.setText(habit.getName());
-            // TODO: How to access amount done on current day... change Progress data types from Date to String ("05/12/21")?
-            String fractionDone = "x/" + habit.getQtyGoal() + " " + habit.getUnit();
+            String qtyCompletedToday = String.valueOf(progress.getQtyCompleted());
+            String fractionDone = qtyCompletedToday + "/" + habit.getQtyGoal() + " " + habit.getUnit();
             tvAmount.setText(fractionDone);
             tvTimeOfDay.setText(habit.getTimeOfDay());
             if (habit.getRemindAtLocation() != null) {
+                // TODO: change icon to map pin if location reminder
                 tvRemind.setText(habit.getRemindAtLocation().getName());
             }
             else {
@@ -160,50 +164,80 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     }
 
+    public String getTodayDateString() {
+        LocalDate localDate = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String dateString = localDate.format(formatter);
+        return dateString;
+    }
+
     protected void queryWithSort(int sortType) {
-        ParseQuery<Habit> query = ParseQuery.getQuery(Habit.class);
-        query.include(Habit.KEY_USER);
-        if (sortType == 0) {
-            query.addAscendingOrder(Habit.KEY_CREATED_AT);
-        }
-        else if (sortType == 1) {
-            query.addAscendingOrder(Habit.KEY_TIME_OF_DAY_INDEX);
+        if (habits.isEmpty()) {
+            ParseQuery<Habit> queryHabits = ParseQuery.getQuery(Habit.class);
+            queryHabits.include(Habit.KEY_USER);
+            queryHabits.include(Habit.KEY_TODAY_PROGRESS);
+            if (sortType != 0) {
+                Log.e("queryWithSort", "sortType not default createdAt sort");
+                return;
+            }
+            queryHabits.addAscendingOrder(Habit.KEY_CREATED_AT);
+            queryHabits.whereEqualTo(Habit.KEY_USER, ParseUser.getCurrentUser());
+            queryHabits.findInBackground(new FindCallback<Habit>() {
+                @Override
+                public void done(List<Habit> queriedHabits, ParseException e) {
+                    // check for errors
+                    if (e != null) {
+                        Log.e("queryWithSort ", "Issue with getting habits", e);
+                        return;
+                    }
+                    habits.clear();
+                    habits.addAll(queriedHabits);
+                    progresses.clear();
+                    habitProgressMap.clear();
+                    for (Habit habit : habits) {
+                        Progress progress = habit.getTodayProgress();
+                        Log.i("queryWithSort", "Habit: " + habit.getName()
+                                + " Progress: " + progress.getDate() + " is " + progress.getQtyCompleted() + " of " + progress.getQtyGoal());
+                        Log.i("queryWithSort", "Creation Date: " + habit.getCreatedAt().getClass());
+                        progresses.add(progress);
+                        habitProgressMap.put(habit, progress);
+                    }
+                    notifyDataSetChanged();
+                }
+            });
         }
         else {
-            query.addAscendingOrder(Habit.KEY_TAG);
-        }
-        query.whereEqualTo(Habit.KEY_USER, ParseUser.getCurrentUser());
-        query.findInBackground(new FindCallback<Habit>() {
-            @Override
-            public void done(List<Habit> queriedHabits, ParseException e) {
-                // check for errors
-                if (e != null) {
-                    Log.e("queryWithSort ", "Issue with getting habits", e);
-                    return;
-                }
-                // debugging
-                for (Habit habit : queriedHabits) {
-                    Log.i("queryWithSort ", "Habit: " + habit.getName());
-                }
-                // save received posts to list and notify adapter of new data
-                habits.clear();
-                habits.addAll(queriedHabits);
-                notifyDataSetChanged();
+            switch(sortType) {
+                case 0:
+                    Collections.sort(habits, new Habit.CreationDateComparator());
+                    break;
+                case 1:
+                    Collections.sort(habits, new Habit.TimeOfDayComparator());
+                    break;
+                case 2:
+                    Collections.sort(habits, new Habit.TagComparator());
+                    break;
+                case 3:
+                    Collections.sort(habits, new Habit.StatusComparator());
+                    break;
             }
-        });
+            progresses.clear();
+            for (Habit habit : habits) {
+                progresses.add(habitProgressMap.get(habit));
+            }
+            notifyDataSetChanged();
+        }
     }
 
     class HeaderViewHolder extends RecyclerView.ViewHolder {
 
         private TextView tvHeaderDate;
         private Spinner spSort;
-        private Spinner spFilter;
 
         public HeaderViewHolder(@NonNull View itemView) {
             super(itemView);
             tvHeaderDate = itemView.findViewById(R.id.tvHeaderDate);
             spSort = itemView.findViewById(R.id.spSort);
-            spFilter = itemView.findViewById(R.id.spFilter);
 
             ArrayAdapter<CharSequence> sortAdapter = ArrayAdapter.createFromResource(context,
                     R.array.sort_spinner_array, android.R.layout.simple_spinner_item);
@@ -212,28 +246,13 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             spSort.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    if (position == 0) {
-                        queryWithSort(0);
-                    }
-                    else if (position == 1) {
-                        queryWithSort(1);
-                    }
-                    else {
-                        queryWithSort(2);
-                    }
+                    queryWithSort(position); // 0-3, corresponds to sort type
                 }
-
                 @Override
                 public void onNothingSelected(AdapterView<?> parent) {
                     // TODO: what goes here?
                 }
             });
-
-            ArrayAdapter<CharSequence> filterAdapter = ArrayAdapter.createFromResource(context,
-                    R.array.filter_spinner_array, android.R.layout.simple_spinner_item);
-            filterAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            spFilter.setAdapter(filterAdapter);
-            // TODO: implement item selection for filter
 
         }
 

@@ -17,6 +17,7 @@ import com.example.habittrack.HabitQuery;
 import com.example.habittrack.models.Habit;
 import com.example.habittrack.HabitsAdapter;
 import com.example.habittrack.R;
+import com.example.habittrack.models.Progress;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
@@ -31,6 +32,7 @@ public class HomeFragment extends Fragment {
     protected RecyclerView rvHabits;
     protected HabitsAdapter adapter;
     protected List<Habit> allHabits;
+    protected List<Progress> allProgress;
 
     public HomeFragment() {}
 
@@ -51,7 +53,8 @@ public class HomeFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         rvHabits = view.findViewById(R.id.rvHabits);
         allHabits = new ArrayList<>();
-        adapter = new HabitsAdapter(getContext(), allHabits);
+        allProgress = new ArrayList<>();
+        adapter = new HabitsAdapter(getContext(), allHabits, allProgress);
 
         rvHabits.setAdapter(adapter);
         rvHabits.setLayoutManager(new LinearLayoutManager(getContext()));

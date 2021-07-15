@@ -35,17 +35,8 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:layout_marginStart="224dp"
-        android:layout_marginTop="15dp"
+        android:layout_marginTop="25dp"
         android:spinnerMode="dropdown" />
-
-    <Spinner
-        android:id="@+id/spFilter"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/spSort"
-        android:layout_alignParentStart="true"
-        android:layout_marginStart="224dp"
-        android:layout_marginTop="6dp" />
 
     <ImageView
         android:id="@+id/ivSort"
@@ -56,18 +47,8 @@
         android:layout_centerHorizontal="false"
         android:layout_centerVertical="false"
         android:layout_marginStart="203dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="30dp"
         android:layout_marginEnd="8dp"
         app:srcCompat="@drawable/ic_fi_rr_layers" />
 
-    <ImageView
-        android:id="@+id/ivFilter"
-        android:layout_width="16dp"
-        android:layout_height="16dp"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="false"
-        android:layout_marginStart="203dp"
-        android:layout_marginTop="49dp"
-        app:srcCompat="@drawable/ic_fi_rr_filter" />
 </RelativeLayout>

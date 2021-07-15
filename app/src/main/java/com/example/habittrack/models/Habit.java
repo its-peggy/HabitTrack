@@ -5,6 +5,7 @@ import com.parse.ParseFile;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
 
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,6 +16,7 @@ public class Habit extends ParseObject {
     public static final String KEY_USER = "user";
     public static final String KEY_NAME = "name";
     public static final String KEY_ICON = "icon";
+    public static final String KEY_TODAY_PROGRESS = "todayProgress";
     public static final String KEY_TAG = "tag";
     public static final String KEY_QTY_GOAL = "qtyGoal";
     public static final String KEY_UNIT = "unit";
@@ -59,6 +61,14 @@ public class Habit extends ParseObject {
         put(KEY_ICON, icon);
     }
 
+    public Progress getTodayProgress() {
+        return (Progress) get(KEY_TODAY_PROGRESS);
+    }
+
+    public void setTodayProgress(Progress progress) {
+        put(KEY_TODAY_PROGRESS, progress);
+    }
+
     public String getTag() {
         return getString(KEY_TAG);
     }
@@ -92,6 +102,10 @@ public class Habit extends ParseObject {
         put(KEY_TIME_OF_DAY_INDEX, TIME_OF_DAY_MAP.get(timeOfDay));
     }
 
+    public int getTimeOfDayIndex() {
+        return getInt(KEY_TIME_OF_DAY_INDEX);
+    }
+
     public int getStreak() {
         return getInt(KEY_STREAK);
     }
@@ -116,4 +130,40 @@ public class Habit extends ParseObject {
         put(KEY_REMIND_AT_LOCATION, location);
     }
 
+    public static class CreationDateComparator implements Comparator<Habit> {
+        @Override
+        public int compare(Habit habit1, Habit habit2) {
+            Date date1 = habit1.getCreatedAt();
+            Date date2 = habit2.getCreatedAt();
+            return date1.compareTo(date2);
+        }
+    }
+
+    public static class TimeOfDayComparator implements Comparator<Habit> {
+        @Override
+        public int compare(Habit habit1, Habit habit2) {
+            return habit1.getTimeOfDayIndex() - habit2.getTimeOfDayIndex();
+        }
+    }
+
+    public static class TagComparator implements Comparator<Habit> {
+        @Override
+        public int compare(Habit habit1, Habit habit2) {
+            String tag1 = habit1.getTag();
+            String tag2 = habit2.getTag();
+            return tag1.compareTo(tag2);
+        }
+    }
+
+    public static class StatusComparator implements Comparator<Habit> {
+        @Override
+        public int compare(Habit habit1, Habit habit2) {
+            Boolean status1 = habit1.getTodayProgress().getCompleted();
+            Boolean status2 = habit2.getTodayProgress().getCompleted();
+            return Boolean.compare(status1, status2);
+        }
+    }
+
 }
+
+
