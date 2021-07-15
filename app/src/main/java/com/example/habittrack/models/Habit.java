@@ -6,6 +6,8 @@ import com.parse.ParseObject;
 import com.parse.ParseUser;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @ParseClassName("Habit")
 public class Habit extends ParseObject {
@@ -17,9 +19,21 @@ public class Habit extends ParseObject {
     public static final String KEY_QTY_GOAL = "qtyGoal";
     public static final String KEY_UNIT = "unit";
     public static final String KEY_TIME_OF_DAY = "timeOfDay";
+    public static final String KEY_TIME_OF_DAY_INDEX = "timeOfDayIndex";
     public static final String KEY_STREAK = "streak";
     public static final String KEY_REMIND_AT_TIME = "remindAtTime";
     public static final String KEY_REMIND_AT_LOCATION = "remindAtLocation";
+    public static final Map<String, Integer> TIME_OF_DAY_MAP;
+
+    static {
+        TIME_OF_DAY_MAP = new HashMap<>();
+        TIME_OF_DAY_MAP.put("All Day", 0);
+        TIME_OF_DAY_MAP.put("Morning", 1);
+        TIME_OF_DAY_MAP.put("Noon", 2);
+        TIME_OF_DAY_MAP.put("Afternoon", 3);
+        TIME_OF_DAY_MAP.put("Evening", 4);
+        TIME_OF_DAY_MAP.put("Night", 5);
+    }
 
     public ParseUser getUser() {
         return getParseUser(KEY_USER);
@@ -75,6 +89,7 @@ public class Habit extends ParseObject {
 
     public void setTimeOfDay(String timeOfDay) {
         put(KEY_TIME_OF_DAY, timeOfDay);
+        put(KEY_TIME_OF_DAY_INDEX, TIME_OF_DAY_MAP.get(timeOfDay));
     }
 
     public int getStreak() {

@@ -14,6 +14,8 @@ import com.example.habittrack.R;
 
 public class CreateFragment extends Fragment {
 
+    public CreateFragment() {};
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

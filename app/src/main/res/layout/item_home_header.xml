@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -12,7 +13,7 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="14dp"
+        android:layout_marginTop="18dp"
         android:text="Today's Habits"
         android:textSize="16sp" />
 
@@ -20,10 +21,10 @@
         android:id="@+id/tvHeaderDate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/tvTodaysHabits"
         android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="8dp"
         android:textSize="12sp"
         tools:text="Wednesday, July 14, 2021" />
 
@@ -33,16 +34,40 @@
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:layout_marginStart="266dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginStart="224dp"
+        android:layout_marginTop="15dp"
         android:spinnerMode="dropdown" />
 
     <Spinner
         android:id="@+id/spFilter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/spSort"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="224dp"
+        android:layout_marginTop="6dp" />
+
+    <ImageView
+        android:id="@+id/ivSort"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:layout_alignParentStart="false"
         android:layout_alignParentTop="true"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="24dp"
-        android:layout_toEndOf="@+id/spSort" />
+        android:layout_centerHorizontal="false"
+        android:layout_centerVertical="false"
+        android:layout_marginStart="203dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="8dp"
+        app:srcCompat="@drawable/ic_fi_rr_layers" />
+
+    <ImageView
+        android:id="@+id/ivFilter"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="false"
+        android:layout_marginStart="203dp"
+        android:layout_marginTop="49dp"
+        app:srcCompat="@drawable/ic_fi_rr_filter" />
 </RelativeLayout>

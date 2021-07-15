@@ -2,11 +2,13 @@
     <string name="app_name">HabitTrack</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
     <string-array name="filter_spinner_array">
         <item>All</item>
         <item>Completed</item>
         <item>Not completed</item>
     </string-array>
+
     <string-array name="sort_spinner_array">
         <item>Creation date</item>
         <item>Time of day</item>

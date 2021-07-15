@@ -16,12 +16,18 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
+import com.example.habittrack.models.Habit;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.parse.FindCallback;
+import com.parse.ParseException;
+import com.parse.ParseQuery;
+import com.parse.ParseUser;
+
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
     public static final String TAG = "MainActivity";
-    private Button btnLogout;
     final FragmentManager fragmentManager = getSupportFragmentManager();
     private BottomNavigationView bottomNavigationView;
 
@@ -30,43 +36,27 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // btnLogout = findViewById(R.id.btnLogout);
         bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottomNavigation);
-
-//        btnLogout.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                ParseUser.logOut();
-//                Intent i = new Intent(MainActivity.this, StartActivity.class);
-//                startActivity(i);
-//            }
-//        });
-
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
                 Fragment fragment;
                 switch (menuItem.getItemId()) {
                     case R.id.action_home:
-                        // Toast.makeText(MainActivity.this, "Home!", Toast.LENGTH_SHORT).show();
                         fragment = new HomeFragment();
                         break;
                     case R.id.action_create:
-                        // Toast.makeText(MainActivity.this, "Create!", Toast.LENGTH_SHORT).show();
                         fragment = new CreateFragment();
                         break;
                     case R.id.action_progress:
                     default:
-                        // Toast.makeText(MainActivity.this, "Profile!", Toast.LENGTH_SHORT).show();
                         fragment = new ProgressFragment();
                         break;
                 }
-                // replace frame layout with whichever fragment corresponds to the button selected
                 fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).commit();
                 return true;
             }
         });
-        // set default selection
         bottomNavigationView.setSelectedItemId(R.id.action_home);
     }
 }

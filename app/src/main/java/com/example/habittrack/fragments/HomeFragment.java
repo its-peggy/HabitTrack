@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.habittrack.HabitQuery;
 import com.example.habittrack.models.Habit;
 import com.example.habittrack.HabitsAdapter;
 import com.example.habittrack.R;
@@ -31,9 +32,7 @@ public class HomeFragment extends Fragment {
     protected HabitsAdapter adapter;
     protected List<Habit> allHabits;
 
-    public HomeFragment() {
-        // Required empty public constructor
-    }
+    public HomeFragment() {}
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -57,7 +56,9 @@ public class HomeFragment extends Fragment {
         rvHabits.setAdapter(adapter);
         rvHabits.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        queryPosts();
+        // HabitQuery.queryDefault(adapter, allHabits);
+
+        // queryPosts(); // TODO: is this needed? the createdAt sort option is automatically selected on app startup, and it performs a query
     }
 
     protected void queryPosts() {
@@ -65,7 +66,6 @@ public class HomeFragment extends Fragment {
         ParseQuery<Habit> query = ParseQuery.getQuery(Habit.class);
         // include data referred by user key -- Q: why is this not included by default? Is it a "shallow" query by default?
         query.include(Habit.KEY_USER); // is this a pointer to a User object?
-        // TODO: order habits alphabetically?
         // only show habits of current user
         query.whereEqualTo(Habit.KEY_USER, ParseUser.getCurrentUser());
         // start an asynchronous call for posts
