@@ -8,6 +8,7 @@ Original App Design Project - README Template
 1. [Product Spec](#Product-Spec)
 1. [Wireframes](#Wireframes)
 2. [Schema](#Schema)
+3. [Further Documentation](#Further-Documentation)
 
 ## Overview
 ### Description
@@ -145,3 +146,8 @@ App that lets you create and categorize daily habits (e.g. drink 8 cups of water
 
 - [Create basic snippets for each Parse network request]
 - [OPTIONAL: List endpoints if using existing API such as Yelp]
+
+## Further Documentation
+
+* Added page and section headers to home RecyclerView by implementing multiple View types, dynamic getItemCount, etc.
+* Faciliated querying with pointers, HashMap, and reduced querying with custom comparators. 
