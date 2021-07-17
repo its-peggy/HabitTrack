@@ -9,6 +9,9 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.SeekBar;
+
+import com.travijuu.numberpicker.library.NumberPicker;
 
 import com.example.habittrack.R;
 
@@ -31,5 +34,7 @@ public class CreateFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-    }
+
+        SeekBar seekbar = view.findViewById(R.id.simpleSeekBar);
+    };
 }

@@ -44,4 +44,6 @@ dependencies {
     implementation 'jp.wasabeef:glide-transformations:4.1.0'
     implementation 'org.parceler:parceler-api:1.1.12'
     annotationProcessor 'org.parceler:parceler:1.1.12'
+
+    implementation 'com.github.travijuu:numberpicker:1.0.7'
 }

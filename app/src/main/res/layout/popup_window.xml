@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFCCCC">
+
+    <TextView
+        android:id="@+id/tvPopupHabitName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="8dp"
+        tools:layout_editor_absoluteX="167dp"
+        tools:layout_editor_absoluteY="199dp"
+        tools:text="Habit name" />
+
+    <SeekBar
+        android:id="@+id/sbProgress"
+        android:layout_width="236dp"
+        android:layout_height="38dp"
+        android:layout_alignParentStart="false"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="30dp" />
+
+    <TextView
+        android:id="@+id/tvSeekBarMin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="false"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="39dp"
+        android:layout_marginEnd="0dp"
+        android:layout_toStartOf="@+id/sbProgress"
+        android:textAlignment="textEnd"
+        tools:text="0" />
+
+    <TextView
+        android:id="@+id/tvSeekBarMax"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="40dp"
+        android:layout_marginEnd="9dp"
+        android:layout_toEndOf="@+id/sbProgress"
+        android:textAlignment="viewStart"
+        tools:text="64" />
+
+    <TextView
+        android:id="@+id/tvPopupProgress"
+        android:layout_width="87dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/sbProgress"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="0dp"
+        android:text="TextView"
+        android:textAlignment="center"
+        tools:text="32/64 oz" />
+
+    <Button
+        android:id="@+id/btnSaveProgress"
+        android:layout_width="63dp"
+        android:layout_height="34dp"
+        android:layout_below="@+id/tvPopupProgress"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="8dp"
+        android:text="Save"
+        android:textSize="10sp" />
+
+</RelativeLayout>
