@@ -89,7 +89,6 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 vh.bind();
             } else if (holder instanceof HabitViewHolder) {
                 HabitViewHolder vh = (HabitViewHolder) holder;
-                // Log.d("onBindViewHolder", "habits size " + habits.size() + " progresses size " + progresses.size());
                 vh.bind(habits.get(position-1));
             } else if (holder instanceof SectionHeaderViewHolder) {
                 SectionHeaderViewHolder vh = (SectionHeaderViewHolder) holder;
@@ -213,13 +212,10 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
                 @Override
                 public void onStartTrackingTouch(SeekBar seekBar) {
-                    //Toast.makeText(context, "seekbar touch started", Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
                 public void onStopTrackingTouch(SeekBar seekBar) {
-                    //Toast.makeText(context, "seekbar touch stopped", Toast.LENGTH_SHORT).show();
-
                 }
             });
 
@@ -241,8 +237,6 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                         @Override
                         public void done(ParseException e) {
                             Log.d("seekbar", "progress change saved");
-
-                            // notifyDataSetChanged();
                             notifyItemChanged(habitPosition);
                         }
                     });
@@ -252,13 +246,6 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         }
 
-    }
-
-    public String getTodayDateString() {
-        LocalDate localDate = LocalDate.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        String dateString = localDate.format(formatter);
-        return dateString;
     }
 
     protected void queryWithSort(int sortType) {

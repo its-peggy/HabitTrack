@@ -29,7 +29,7 @@ public class Habit extends ParseObject {
 
     static {
         TIME_OF_DAY_MAP = new HashMap<>();
-        TIME_OF_DAY_MAP.put("All Day", 0);
+        TIME_OF_DAY_MAP.put("All day", 0);
         TIME_OF_DAY_MAP.put("Morning", 1);
         TIME_OF_DAY_MAP.put("Noon", 2);
         TIME_OF_DAY_MAP.put("Afternoon", 3);
@@ -69,9 +69,7 @@ public class Habit extends ParseObject {
         put(KEY_TODAY_PROGRESS, progress);
     }
 
-    public String getTag() {
-        return getString(KEY_TAG);
-    }
+    public String getTag() { return getString(KEY_TAG); }
 
     public void setTag(String tag) {
         put(KEY_TAG, tag);

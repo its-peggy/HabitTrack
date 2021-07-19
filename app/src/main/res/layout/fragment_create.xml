@@ -1,17 +1,95 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:numberpicker="http://schemas.android.com/apk/res-auto"
     tools:context=".fragments.CreateFragment">
 
-    <SeekBar
-        android:id="@+id/simpleSeekBar"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:max="200"
-        android:progress="50"
-        android:progressDrawable="@drawable/custom_progress_gradient"/><!-- set custom progress drawable for the progress -->
+<!--    <SeekBar-->
+<!--        android:id="@+id/simpleSeekBar"-->
+<!--        android:layout_width="fill_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:max="200"-->
+<!--        android:progress="50"-->
+<!--        android:progressDrawable="@drawable/custom_progress_gradient"/>&lt;!&ndash; set custom progress drawable for the progress &ndash;&gt;-->
 
-</FrameLayout>
+
+    <EditText
+        android:id="@+id/etCreateHabitName"
+        android:layout_width="356dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="30dp"
+        android:ems="10"
+        android:hint="Habit name"
+        android:inputType="textPersonName" />
+
+    <EditText
+        android:id="@+id/etCreateHabitGoalQty"
+        android:layout_width="116dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/etCreateHabitName"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="8dp"
+        android:ems="10"
+        android:hint="Goal qty"
+        android:inputType="number" />
+
+    <EditText
+        android:id="@+id/etCreateHabitUnits"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/etCreateHabitName"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="30dp"
+        android:layout_toEndOf="@+id/etCreateHabitGoalQty"
+        android:ems="10"
+        android:hint="Units"
+        android:inputType="textPersonName" />
+
+    <Spinner
+        android:id="@+id/spCreateTimeOfDay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/etCreateHabitGoalQty"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="4dp" />
+
+    <Spinner
+        android:id="@+id/spCreateTag"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/spCreateTimeOfDay"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="4dp" />
+
+    <TimePicker
+        android:id="@+id/tpCreateReminderTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/spCreateTag"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="21dp"
+        android:layout_marginTop="4dp"
+        android:timePickerMode="spinner" />
+
+    <Button
+        android:id="@+id/btnCreateHabit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tpCreateReminderTime"
+        android:layout_alignParentBottom="false"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="4dp"
+        android:text="Create habit" />
+</RelativeLayout>
