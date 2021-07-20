@@ -31,8 +31,6 @@ import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
-import org.w3c.dom.Text;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -44,7 +42,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.SortedMap;
 
 import okhttp3.internal.http2.Header;
 
@@ -58,8 +55,8 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private List<Progress> progresses;
 
     private static final List<String> TIME_OF_DAY_SECTIONS = Arrays.asList("All day", "Morning", "Noon", "Afternoon", "Evening", "Night");
-    private static final List<String> TAG_SECTIONS = Arrays.asList("Personal", "Exercise", "Health", "Education", "Productivity");
-    private static final List<String> STATUS_SECTIONS = Arrays.asList("Not Completed", "Completed");
+    private static final List<String> TAG_SECTIONS = Arrays.asList("Education", "Exercise", "Health", "Personal", "Productivity");
+    private static final List<String> STATUS_SECTIONS = Arrays.asList("Not completed", "Completed");
 
     private static final int NUM_HEADERS_CREATION_DATE = 0;
     private static final int NUM_HEADERS_TIME_OF_DAY = TIME_OF_DAY_SECTIONS.size();
@@ -67,8 +64,6 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private static final int NUM_HEADERS_STATUS = STATUS_SECTIONS.size();
 
     private static int SORT_TYPE;
-
-    private static final Map<Integer, String> sortTypeToKeyName;
 
     private static final Map<Integer, Integer> sortTypeToNumSections;
     private static final Map<Integer, List<String>> sortTypeToSectionNames;
@@ -86,20 +81,6 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         sortTypeToSectionNames.put(1, TIME_OF_DAY_SECTIONS);
         sortTypeToSectionNames.put(2, TAG_SECTIONS);
         sortTypeToSectionNames.put(3, STATUS_SECTIONS);
-
-        sortTypeToKeyName = new HashMap<>();
-        sortTypeToKeyName.put(1, Habit.KEY_TIME_OF_DAY);
-        sortTypeToKeyName.put(2, Habit.KEY_TAG);
-        // sortTypeToKeyName.put(3, Habit.KEY);
-
-        ////// TEMP HARDCODED //////// TODO: actually write the algorithm for generating this map
-        sectionHeaderPositionToName.put(1, "All day");
-        sectionHeaderPositionToName.put(5, "Morning");
-        sectionHeaderPositionToName.put(8, "Noon");
-        sectionHeaderPositionToName.put(9, "Afternoon");
-        sectionHeaderPositionToName.put(12, "Evening");
-        sectionHeaderPositionToName.put(14, "Night");
-
     }
 
     public HabitsAdapter(Context context, List<Habit> habits, List<Progress> progresses) {
@@ -157,11 +138,11 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         int listSize = sectionHeaderPositions.size();
         for (int i = 0; i < listSize - 1; i++) {
             if (sectionHeaderPositions.get(i) < position && position < sectionHeaderPositions.get(i+1)) {
-                return i+2;
+                return i + 2;
             }
         }
         if (sectionHeaderPositions.get(listSize-1) < position) {
-            return listSize+1;
+            return listSize + 1;
         }
         return -1;
     }
@@ -296,9 +277,7 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     int goal = progress.getQtyGoal();
                     progress.setQtyCompleted(newProgress);
                     progress.setPctCompleted(100 * (double) newProgress / goal);
-                    if (newProgress == goal) {
-                        progress.setCompleted(true);
-                    }
+                    progress.setCompleted(newProgress == goal);
                     progress.saveInBackground(new SaveCallback() {
                         @Override
                         public void done(ParseException e) {
@@ -315,10 +294,35 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     }
 
     protected void makeSectionHeaderPositionToName(List<Habit> habits, int sortType) {
+        if (sortType == 0) {
+            sectionHeaderPositionToName.clear();
+            return;
+        }
         List<String> labels = sortTypeToSectionNames.get(sortType);
-
-
-
+        Map<String, Integer> numHabitsOfEachType = new HashMap<>();
+        for (String label : labels) {
+            numHabitsOfEachType.put(label, 0);
+        }
+        for (Habit habit : habits) {
+            String key;
+            if (sortType == 1) {
+                key = habit.getTimeOfDay();
+            }
+            else if (sortType == 2) {
+                key = habit.getTag();
+            }
+            else {
+                assert (sortType == 3);
+                key = habit.getTodayProgress().getCompleted() ? "Completed" : "Not completed";
+            }
+            numHabitsOfEachType.put(key, numHabitsOfEachType.get(key) + 1);
+        }
+        sectionHeaderPositionToName.clear();
+        int current = 1;
+        for (int i = 0; i < labels.size(); i++) {
+            sectionHeaderPositionToName.put(current, labels.get(i));
+            current += numHabitsOfEachType.get(labels.get(i)) + 1;
+        }
     }
 
     protected void queryWithSort(int sortType) {
@@ -335,7 +339,6 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             queryHabits.findInBackground(new FindCallback<Habit>() {
                 @Override
                 public void done(List<Habit> queriedHabits, ParseException e) {
-                    // check for errors
                     if (e != null) {
                         Log.e("queryWithSort ", "Issue with getting habits", e);
                         return;
@@ -352,7 +355,7 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                         progresses.add(progress);
                         habitProgressMap.put(habit, progress);
                     }
-                    //makeSectionHeaderPositionToName(habits, sortType);
+                    makeSectionHeaderPositionToName(habits, sortType);
                     notifyDataSetChanged();
                 }
             });
@@ -372,7 +375,7 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     Collections.sort(habits, new Habit.StatusComparator());
                     break;
             }
-            //makeSectionHeaderPositionToName(habits, sortType);
+            makeSectionHeaderPositionToName(habits, sortType);
             progresses.clear();
             for (Habit habit : habits) {
                 progresses.add(habitProgressMap.get(habit));

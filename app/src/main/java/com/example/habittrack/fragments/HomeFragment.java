@@ -34,7 +34,7 @@ public class HomeFragment extends Fragment {
     protected List<Habit> allHabits;
     protected List<Progress> allProgress;
 
-    public HomeFragment() {}
+    public HomeFragment() { }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -42,9 +42,7 @@ public class HomeFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_home, container, false);
     }
 
@@ -58,36 +56,6 @@ public class HomeFragment extends Fragment {
 
         rvHabits.setAdapter(adapter);
         rvHabits.setLayoutManager(new LinearLayoutManager(getContext()));
-
-        // HabitQuery.queryDefault(adapter, allHabits);
-
-        // queryPosts(); // TODO: is this needed? the createdAt sort option is automatically selected on app startup, and it performs a query
     }
 
-    protected void queryPosts() {
-        // specify what type of data we want to query - Post.class
-        ParseQuery<Habit> query = ParseQuery.getQuery(Habit.class);
-        // include data referred by user key -- Q: why is this not included by default? Is it a "shallow" query by default?
-        query.include(Habit.KEY_USER); // is this a pointer to a User object?
-        // only show habits of current user
-        query.whereEqualTo(Habit.KEY_USER, ParseUser.getCurrentUser());
-        // start an asynchronous call for posts
-        query.findInBackground(new FindCallback<Habit>() {
-            @Override
-            public void done(List<Habit> habits, ParseException e) {
-                // check for errors
-                if (e != null) {
-                    Log.e(TAG, "Issue with getting habits", e);
-                    return;
-                }
-                // for debugging purposes let's print every habit to logcat
-                for (Habit habit : habits) {
-                    Log.i(TAG, "Habit: " + habit.getName());
-                }
-                // save received posts to list and notify adapter of new data
-                allHabits.addAll(habits); // "posts" is the List that the adapter has access to
-                adapter.notifyDataSetChanged();
-            }
-        });
-    }
 }
