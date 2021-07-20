@@ -37,6 +37,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -48,14 +50,57 @@ import okhttp3.internal.http2.Header;
 
 public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private static final int HEADER_VIEW = 1;
+    private static final int HEADER_VIEW = 100;
     private static final int SECTION_HEADER_VIEW = 2;
     private Context context;
     private Map<Habit, Progress> habitProgressMap = new HashMap<>();
     private List<Habit> habits;
     private List<Progress> progresses;
 
-    public static int TYPE_OF_SORT;
+    private static final List<String> TIME_OF_DAY_SECTIONS = Arrays.asList("All day", "Morning", "Noon", "Afternoon", "Evening", "Night");
+    private static final List<String> TAG_SECTIONS = Arrays.asList("Personal", "Exercise", "Health", "Education", "Productivity");
+    private static final List<String> STATUS_SECTIONS = Arrays.asList("Not Completed", "Completed");
+
+    private static final int NUM_HEADERS_CREATION_DATE = 0;
+    private static final int NUM_HEADERS_TIME_OF_DAY = TIME_OF_DAY_SECTIONS.size();
+    private static final int NUM_HEADERS_TAG = TAG_SECTIONS.size();
+    private static final int NUM_HEADERS_STATUS = STATUS_SECTIONS.size();
+
+    private static int SORT_TYPE;
+
+    private static final Map<Integer, String> sortTypeToKeyName;
+
+    private static final Map<Integer, Integer> sortTypeToNumSections;
+    private static final Map<Integer, List<String>> sortTypeToSectionNames;
+
+    private static Map<Integer, String> sectionHeaderPositionToName = new HashMap<>();
+
+    static {
+        sortTypeToNumSections = new HashMap<>();
+        sortTypeToNumSections.put(0, NUM_HEADERS_CREATION_DATE);
+        sortTypeToNumSections.put(1, NUM_HEADERS_TIME_OF_DAY);
+        sortTypeToNumSections.put(2, NUM_HEADERS_TAG);
+        sortTypeToNumSections.put(3, NUM_HEADERS_STATUS);
+
+        sortTypeToSectionNames = new HashMap<>();
+        sortTypeToSectionNames.put(1, TIME_OF_DAY_SECTIONS);
+        sortTypeToSectionNames.put(2, TAG_SECTIONS);
+        sortTypeToSectionNames.put(3, STATUS_SECTIONS);
+
+        sortTypeToKeyName = new HashMap<>();
+        sortTypeToKeyName.put(1, Habit.KEY_TIME_OF_DAY);
+        sortTypeToKeyName.put(2, Habit.KEY_TAG);
+        // sortTypeToKeyName.put(3, Habit.KEY);
+
+        ////// TEMP HARDCODED //////// TODO: actually write the algorithm for generating this map
+        sectionHeaderPositionToName.put(1, "All day");
+        sectionHeaderPositionToName.put(5, "Morning");
+        sectionHeaderPositionToName.put(8, "Noon");
+        sectionHeaderPositionToName.put(9, "Afternoon");
+        sectionHeaderPositionToName.put(12, "Evening");
+        sectionHeaderPositionToName.put(14, "Night");
+
+    }
 
     public HabitsAdapter(Context context, List<Habit> habits, List<Progress> progresses) {
         this.context = context;
@@ -89,20 +134,42 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 vh.bind();
             } else if (holder instanceof HabitViewHolder) {
                 HabitViewHolder vh = (HabitViewHolder) holder;
-                vh.bind(habits.get(position-1));
+                int offset = getHabitOffset(position);
+                if (offset == -1) {
+                    Log.e("offset", "error getting habit offset");
+                }
+                vh.bind(habits.get(position-offset));
             } else if (holder instanceof SectionHeaderViewHolder) {
                 SectionHeaderViewHolder vh = (SectionHeaderViewHolder) holder;
-                vh.bind();
+                vh.bind(sectionHeaderPositionToName.get(position));
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+    private int getHabitOffset(int position) {
+        if (sectionHeaderPositionToName.isEmpty()) { // no section headers (sorting by createdAt)
+            return 1;
+        }
+        List<Integer> sectionHeaderPositions = new ArrayList<Integer>(sectionHeaderPositionToName.keySet());
+        Collections.sort(sectionHeaderPositions);
+        int listSize = sectionHeaderPositions.size();
+        for (int i = 0; i < listSize - 1; i++) {
+            if (sectionHeaderPositions.get(i) < position && position < sectionHeaderPositions.get(i+1)) {
+                return i+2;
+            }
+        }
+        if (sectionHeaderPositions.get(listSize-1) < position) {
+            return listSize+1;
+        }
+        return -1;
+    }
+
     @Override
     public int getItemCount() {
         if (habits != null) {
-            return habits.size() + 1;
+            return 1 + sortTypeToNumSections.get(SORT_TYPE) + habits.size();
         }
         return 0;
     }
@@ -111,6 +178,9 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     public int getItemViewType(int position) {
         if (position == 0) {
             return HEADER_VIEW;
+        }
+        if (sectionHeaderPositionToName.containsKey(position)) {
+            return SECTION_HEADER_VIEW;
         }
         return super.getItemViewType(position);
     }
@@ -175,8 +245,6 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         @Override
         public void onClick(View v) {
-            Toast.makeText(context, "habit clicked", Toast.LENGTH_SHORT).show(); // TODO: on habit clicked
-
             int habitPosition = this.getLayoutPosition();
 
             layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -211,12 +279,10 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 }
 
                 @Override
-                public void onStartTrackingTouch(SeekBar seekBar) {
-                }
+                public void onStartTrackingTouch(SeekBar seekBar) { }
 
                 @Override
-                public void onStopTrackingTouch(SeekBar seekBar) {
-                }
+                public void onStopTrackingTouch(SeekBar seekBar) { }
             });
 
             popupWindow = new PopupWindow(container, 400, 400, true);
@@ -248,8 +314,14 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     }
 
+    protected void makeSectionHeaderPositionToName(List<Habit> habits, int sortType) {
+        List<String> labels = sortTypeToSectionNames.get(sortType);
+
+
+
+    }
+
     protected void queryWithSort(int sortType) {
-        Log.d("queryWithSort", "method called");
         if (habits.isEmpty()) {
             ParseQuery<Habit> queryHabits = ParseQuery.getQuery(Habit.class);
             queryHabits.include(Habit.KEY_USER);
@@ -280,6 +352,7 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                         progresses.add(progress);
                         habitProgressMap.put(habit, progress);
                     }
+                    //makeSectionHeaderPositionToName(habits, sortType);
                     notifyDataSetChanged();
                 }
             });
@@ -299,6 +372,7 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     Collections.sort(habits, new Habit.StatusComparator());
                     break;
             }
+            //makeSectionHeaderPositionToName(habits, sortType);
             progresses.clear();
             for (Habit habit : habits) {
                 progresses.add(habitProgressMap.get(habit));
@@ -324,6 +398,7 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             spSort.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    SORT_TYPE = position;
                     queryWithSort(position); // 0-3, corresponds to sort type
                 }
                 @Override
@@ -351,8 +426,8 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             tvSectionName = itemView.findViewById(R.id.tvSectionName);
         }
 
-        public void bind() {
-            tvSectionName.setText("SECTION HEADER TEST");
+        public void bind(String sectionName) {
+            tvSectionName.setText(sectionName);
         }
     }
 

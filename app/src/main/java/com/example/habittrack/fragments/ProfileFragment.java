@@ -16,29 +16,37 @@ import com.example.habittrack.R;
 import com.example.habittrack.StartActivity;
 import com.parse.ParseUser;
 
-public class ProgressFragment extends Fragment {
+public class ProfileFragment extends Fragment {
 
-    public static final String TAG = "ProgressFragment";
-    protected Button btnLogout;
+    public static final String TAG = "ProfileFragment";
+    private Button btnLogout;
 
-    public ProgressFragment() {};
+    public ProfileFragment() {
+        // Required empty public constructor
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_progress, container, false);
+        return inflater.inflate(R.layout.fragment_profile, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
+        btnLogout = view.findViewById(R.id.btnLogout);
+        btnLogout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ParseUser.logOut();
+                Intent i = new Intent(getActivity(), StartActivity.class);
+                startActivity(i);
+            }
+        });
     }
 }

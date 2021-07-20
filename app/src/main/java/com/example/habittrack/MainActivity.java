@@ -7,6 +7,7 @@ import androidx.fragment.app.FragmentManager;
 
 import com.example.habittrack.fragments.CreateFragment;
 import com.example.habittrack.fragments.HomeFragment;
+import com.example.habittrack.fragments.ProfileFragment;
 import com.example.habittrack.fragments.ProgressFragment;
 
 import android.content.Intent;
@@ -49,8 +50,11 @@ public class MainActivity extends AppCompatActivity {
                         fragment = new CreateFragment();
                         break;
                     case R.id.action_progress:
-                    default:
                         fragment = new ProgressFragment();
+                        break;
+                    case R.id.action_profile:
+                    default:
+                        fragment = new ProfileFragment();
                         break;
                 }
                 fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).commit();
