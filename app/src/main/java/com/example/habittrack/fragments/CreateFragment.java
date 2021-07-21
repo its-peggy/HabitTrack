@@ -5,6 +5,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import android.util.Log;
@@ -130,7 +131,6 @@ public class CreateFragment extends Fragment {
                             return;
                         }
                         Log.i(TAG, "Habit save was successful!");
-                        // TODO: set editable fields to empty once new habit saved
                         Progress progress = habit.getTodayProgress();
                         progress.setHabit(habit);
                         progress.saveInBackground(new SaveCallback() {
@@ -141,6 +141,12 @@ public class CreateFragment extends Fragment {
                                     return;
                                 }
                                 Log.i(TAG, "Updated progress object with habit ID");
+
+                                HomeFragment homeFragment = new HomeFragment();
+                                getActivity().getSupportFragmentManager().beginTransaction()
+                                        .replace(R.id.flContainer, homeFragment, "findThisFragment")
+                                        .addToBackStack(null)
+                                        .commit();
                             }
                         });
                     }

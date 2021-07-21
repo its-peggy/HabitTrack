@@ -1,6 +1,7 @@
 package com.example.habittrack;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -18,10 +19,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
+import com.example.habittrack.fragments.HabitDetailFragment;
 import com.example.habittrack.models.Habit;
 import com.example.habittrack.models.Progress;
 import com.parse.FindCallback;
@@ -67,8 +70,8 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     private static final Map<Integer, Integer> sortTypeToNumSections;
     private static final Map<Integer, List<String>> sortTypeToSectionNames;
-
     private static Map<Integer, String> sectionHeaderPositionToName = new HashMap<>();
+    private static Map<Integer, Integer> habitPositionToOriginal = new HashMap<>();
 
     static {
         sortTypeToNumSections = new HashMap<>();
@@ -131,18 +134,24 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     private int getHabitOffset(int position) {
         if (sectionHeaderPositionToName.isEmpty()) { // no section headers (sorting by createdAt)
-            return 1;
+            int offset = 1;
+            habitPositionToOriginal.put(position, position-offset);
+            return offset;
         }
         List<Integer> sectionHeaderPositions = new ArrayList<Integer>(sectionHeaderPositionToName.keySet());
         Collections.sort(sectionHeaderPositions);
         int listSize = sectionHeaderPositions.size();
         for (int i = 0; i < listSize - 1; i++) {
             if (sectionHeaderPositions.get(i) < position && position < sectionHeaderPositions.get(i+1)) {
-                return i + 2;
+                int offset = i + 2;
+                habitPositionToOriginal.put(position, position-offset);
+                return offset;
             }
         }
         if (sectionHeaderPositions.get(listSize-1) < position) {
-            return listSize + 1;
+            int offset = listSize + 1;
+            habitPositionToOriginal.put(position, position-offset);
+            return offset;
         }
         return -1;
     }
@@ -195,6 +204,25 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             tvRemind = itemView.findViewById(R.id.tvRemind);
             tvTag = itemView.findViewById(R.id.tvTag);
             itemView.setOnClickListener(this);
+            itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    int position = getAdapterPosition();
+                    Toast.makeText(context, "long clicked at position " + position, Toast.LENGTH_SHORT).show();
+                    HabitDetailFragment habitDetailFragment = new HabitDetailFragment();
+                    Bundle bundle = new Bundle();
+                    int originalPosition = habitPositionToOriginal.get(position);
+                    Habit habit = habits.get(originalPosition);
+                    bundle.putSerializable("Habit", habit);
+                    habitDetailFragment.setArguments(bundle);
+                    AppCompatActivity activity = (AppCompatActivity) itemView.getContext();
+                    activity.getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.flContainer, habitDetailFragment, "findThisFragment")
+                            .addToBackStack(null)
+                            .commit();
+                    return true;
+                }
+            });
         }
 
         public void bind(Habit habit) {
@@ -266,7 +294,7 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 public void onStopTrackingTouch(SeekBar seekBar) { }
             });
 
-            popupWindow = new PopupWindow(container, 400, 400, true);
+            popupWindow = new PopupWindow(container, 600, 400, true);
             popupWindow.showAtLocation(v, Gravity.CENTER, 0, 0);
 
             btnSaveProgress.setOnClickListener(new View.OnClickListener() {
@@ -403,6 +431,7 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                     SORT_TYPE = position;
                     queryWithSort(position); // 0-3, corresponds to sort type
+                    // TODO: how to make spinner selection persist when resuming this fragment?
                 }
                 @Override
                 public void onNothingSelected(AdapterView<?> parent) {
