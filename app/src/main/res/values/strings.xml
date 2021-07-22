@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">HabitTrack</string>
-    <!-- TODO: Remove or change this placeholder text -->
+
+    <string name="MAPBOX_ACCESS_TOKEN">pk.eyJ1IjoicGVnZ3l5IiwiYSI6ImNrcmRvbDZsZzVlbTYyb3BhMGd2d25idTcifQ.C3jGlD4MORTsiogAFweILA</string>
+
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
     <string-array name="sort_spinner_array">

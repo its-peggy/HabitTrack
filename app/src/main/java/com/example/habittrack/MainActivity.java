@@ -10,20 +10,14 @@ import com.example.habittrack.fragments.HomeFragment;
 import com.example.habittrack.fragments.ProfileFragment;
 import com.example.habittrack.fragments.ProgressFragment;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
 
 import com.example.habittrack.models.Habit;
+import com.example.habittrack.models.Progress;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.parse.FindCallback;
-import com.parse.ParseException;
-import com.parse.ParseQuery;
-import com.parse.ParseUser;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -31,6 +25,9 @@ public class MainActivity extends AppCompatActivity {
     public static final String TAG = "MainActivity";
     final FragmentManager fragmentManager = getSupportFragmentManager();
     private BottomNavigationView bottomNavigationView;
+
+    List<Habit> habitList = new ArrayList<>();
+    List<Progress> progressList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +54,10 @@ public class MainActivity extends AppCompatActivity {
                         fragment = new ProfileFragment();
                         break;
                 }
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("Habit", new HabitWrapper(habitList));
+                bundle.putSerializable("Progress", new ProgressWrapper(progressList));
+                fragment.setArguments(bundle);
                 fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).commit();
                 return true;
             }

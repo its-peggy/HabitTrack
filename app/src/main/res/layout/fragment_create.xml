@@ -17,14 +17,14 @@
 
     <EditText
         android:id="@+id/etCreateHabitName"
-        android:layout_width="356dp"
+        android:layout_width="248dp"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
         android:layout_marginStart="30dp"
-        android:layout_marginTop="4dp"
-        android:layout_marginEnd="30dp"
+        android:layout_marginTop="19dp"
+        android:layout_marginEnd="32dp"
+        android:layout_toEndOf="@+id/ibIconButton"
         android:ems="10"
         android:hint="Habit name"
         android:inputType="textPersonName" />
@@ -33,10 +33,10 @@
         android:id="@+id/etCreateHabitGoalQty"
         android:layout_width="116dp"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/etCreateHabitName"
+        android:layout_below="@+id/ibIconButton"
         android:layout_alignParentStart="true"
         android:layout_marginStart="30dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="6dp"
         android:ems="10"
         android:hint="Goal qty"
         android:inputType="number" />
@@ -92,4 +92,17 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="4dp"
         android:text="Create habit" />
+
+    <ImageButton
+        android:id="@+id/ibIconButton"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="39dp"
+        android:layout_marginTop="6dp"
+        android:adjustViewBounds="true"
+        android:scaleType="fitCenter"
+        android:src="@drawable/icons8_abc_100"
+        tools:src="@drawable/icons8_abc_100" />
 </RelativeLayout>

@@ -12,11 +12,9 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
-import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -34,7 +32,6 @@ import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -46,16 +43,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import okhttp3.internal.http2.Header;
-
 public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+
+    private static final String TAG = "HabitsAdapter";
 
     private static final int HEADER_VIEW = 100;
     private static final int SECTION_HEADER_VIEW = 2;
     private Context context;
-    private Map<Habit, Progress> habitProgressMap = new HashMap<>();
+    private static Map<Habit, Progress> habitProgressMap = new HashMap<>();
     private List<Habit> habits;
-    private List<Progress> progresses;
+    private List<Progress> progresses; // TODO: is this actually needed?
 
     private static final List<String> TIME_OF_DAY_SECTIONS = Arrays.asList("All day", "Morning", "Noon", "Afternoon", "Evening", "Night");
     private static final List<String> TAG_SECTIONS = Arrays.asList("Education", "Exercise", "Health", "Personal", "Productivity");
@@ -66,7 +63,7 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private static final int NUM_HEADERS_TAG = TAG_SECTIONS.size();
     private static final int NUM_HEADERS_STATUS = STATUS_SECTIONS.size();
 
-    private static int SORT_TYPE;
+    private static int LAST_SORT_SELECTED = 0;
 
     private static final Map<Integer, Integer> sortTypeToNumSections;
     private static final Map<Integer, List<String>> sortTypeToSectionNames;
@@ -98,7 +95,7 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         View view;
         if (viewType == HEADER_VIEW) {
             view = LayoutInflater.from(context).inflate(R.layout.item_home_header, parent, false);
-            return new HeaderViewHolder(view);
+            return new HeaderViewHolder(view, LAST_SORT_SELECTED);
         }
         else if (viewType == SECTION_HEADER_VIEW) {
             view = LayoutInflater.from(context).inflate(R.layout.item_home_section_header, parent, false);
@@ -120,7 +117,7 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 HabitViewHolder vh = (HabitViewHolder) holder;
                 int offset = getHabitOffset(position);
                 if (offset == -1) {
-                    Log.e("offset", "error getting habit offset");
+                    Log.e(TAG, "error getting habit offset");
                 }
                 vh.bind(habits.get(position-offset));
             } else if (holder instanceof SectionHeaderViewHolder) {
@@ -159,7 +156,7 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     @Override
     public int getItemCount() {
         if (habits != null) {
-            return 1 + sortTypeToNumSections.get(SORT_TYPE) + habits.size();
+            return 1 + sortTypeToNumSections.get(LAST_SORT_SELECTED) + habits.size();
         }
         return 0;
     }
@@ -208,12 +205,13 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 @Override
                 public boolean onLongClick(View v) {
                     int position = getAdapterPosition();
-                    Toast.makeText(context, "long clicked at position " + position, Toast.LENGTH_SHORT).show();
                     HabitDetailFragment habitDetailFragment = new HabitDetailFragment();
                     Bundle bundle = new Bundle();
                     int originalPosition = habitPositionToOriginal.get(position);
                     Habit habit = habits.get(originalPosition);
-                    bundle.putSerializable("Habit", habit);
+                    // bundle.putSerializable("Habit", habit);
+                    bundle.putSerializable("Habit", new HabitWrapper(habits));
+                    bundle.putInt("Position", originalPosition);
                     habitDetailFragment.setArguments(bundle);
                     AppCompatActivity activity = (AppCompatActivity) itemView.getContext();
                     activity.getSupportFragmentManager().beginTransaction()
@@ -257,7 +255,7 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             int habitPosition = this.getLayoutPosition();
 
             layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            ViewGroup container = (ViewGroup) layoutInflater.inflate(R.layout.popup_window, null);
+            ViewGroup container = (ViewGroup) layoutInflater.inflate(R.layout.popup_progress_window, null);
 
             tvPopupHabitName = container.findViewById(R.id.tvPopupHabitName);
             sbProgress = container.findViewById(R.id.sbProgress);
@@ -353,71 +351,73 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         }
     }
 
-    protected void queryWithSort(int sortType) {
-        if (habits.isEmpty()) {
-            ParseQuery<Habit> queryHabits = ParseQuery.getQuery(Habit.class);
-            queryHabits.include(Habit.KEY_USER);
-            queryHabits.include(Habit.KEY_TODAY_PROGRESS);
-            if (sortType != 0) {
-                Log.e("queryWithSort", "sortType not default createdAt sort");
-                return;
-            }
-            queryHabits.addAscendingOrder(Habit.KEY_CREATED_AT);
-            queryHabits.whereEqualTo(Habit.KEY_USER, ParseUser.getCurrentUser());
-            queryHabits.findInBackground(new FindCallback<Habit>() {
-                @Override
-                public void done(List<Habit> queriedHabits, ParseException e) {
-                    if (e != null) {
-                        Log.e("queryWithSort ", "Issue with getting habits", e);
-                        return;
-                    }
-                    habits.clear();
-                    habits.addAll(queriedHabits);
-                    progresses.clear();
-                    habitProgressMap.clear();
-                    for (Habit habit : habits) {
-                        Progress progress = habit.getTodayProgress();
-                        Log.i("queryWithSort", "Habit: " + habit.getName()
-                                + " Progress: " + progress.getDate() + " is " + progress.getQtyCompleted() + " of " + progress.getQtyGoal());
-                        Log.i("queryWithSort", "Creation Date: " + habit.getCreatedAt().getClass());
-                        progresses.add(progress);
-                        habitProgressMap.put(habit, progress);
-                    }
-                    makeSectionHeaderPositionToName(habits, sortType);
-                    notifyDataSetChanged();
+    protected void queryDatabase(int sortType) {
+        Log.d(TAG, "querying database");
+        ParseQuery<Habit> queryHabits = ParseQuery.getQuery(Habit.class);
+        queryHabits.include(Habit.KEY_USER);
+        queryHabits.include(Habit.KEY_TODAY_PROGRESS);
+        if (sortType != 0) {
+            Log.e(TAG, "upon Parse query, sortType not default \"createdAt\" sort");
+            return;
+        }
+        queryHabits.addAscendingOrder(Habit.KEY_CREATED_AT);
+        queryHabits.whereEqualTo(Habit.KEY_USER, ParseUser.getCurrentUser());
+        queryHabits.findInBackground(new FindCallback<Habit>() {
+            @Override
+            public void done(List<Habit> queriedHabits, ParseException e) {
+                if (e != null) {
+                    Log.e(TAG, "Issue with querying habits from Parse", e);
+                    return;
                 }
-            });
-        }
-        else {
-            switch(sortType) {
-                case 0:
-                    Collections.sort(habits, new Habit.CreationDateComparator());
-                    break;
-                case 1:
-                    Collections.sort(habits, new Habit.TimeOfDayComparator());
-                    break;
-                case 2:
-                    Collections.sort(habits, new Habit.TagComparator());
-                    break;
-                case 3:
-                    Collections.sort(habits, new Habit.StatusComparator());
-                    break;
+                habits.clear();
+                habits.addAll(queriedHabits);
+                progresses.clear();
+                habitProgressMap.clear();
+                for (Habit habit : habits) {
+                    Progress progress = habit.getTodayProgress();
+//                        Log.i(TAG, "Habit: " + habit.getName()
+//                                + " Progress: " + progress.getDate() + " is " + progress.getQtyCompleted() + " of " + progress.getQtyGoal());
+//                        Log.i(TAG, "Creation Date: " + habit.getCreatedAt().getClass());
+                    progresses.add(progress);
+                    habitProgressMap.put(habit, progress);
+                }
+                makeSectionHeaderPositionToName(habits, sortType);
+                notifyDataSetChanged();
             }
-            makeSectionHeaderPositionToName(habits, sortType);
-            progresses.clear();
-            for (Habit habit : habits) {
-                progresses.add(habitProgressMap.get(habit));
-            }
-            notifyDataSetChanged();
-        }
+        });
     }
+
+    protected void sortExistingHabits(int sortType) {
+        switch(sortType) {
+            case 0:
+                Collections.sort(habits, new Habit.CreationDateComparator());
+                break;
+            case 1:
+                Collections.sort(habits, new Habit.TimeOfDayComparator());
+                break;
+            case 2:
+                Collections.sort(habits, new Habit.TagComparator());
+                break;
+            case 3:
+                Collections.sort(habits, new Habit.StatusComparator());
+                break;
+        }
+        makeSectionHeaderPositionToName(habits, sortType);
+        progresses.clear();
+        for (Habit habit : habits) {
+            progresses.add(habitProgressMap.get(habit));
+        }
+        notifyDataSetChanged();
+    }
+
+
 
     class HeaderViewHolder extends RecyclerView.ViewHolder {
 
         private TextView tvHeaderDate;
         private Spinner spSort;
 
-        public HeaderViewHolder(@NonNull View itemView) {
+        public HeaderViewHolder(@NonNull View itemView, int sortTypePosition) {
             super(itemView);
             tvHeaderDate = itemView.findViewById(R.id.tvHeaderDate);
             spSort = itemView.findViewById(R.id.spSort);
@@ -426,12 +426,18 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     R.array.sort_spinner_array, android.R.layout.simple_spinner_item);
             sortAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spSort.setAdapter(sortAdapter);
+            spSort.setSelection(sortTypePosition);
             spSort.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    SORT_TYPE = position;
-                    queryWithSort(position); // 0-3, corresponds to sort type
-                    // TODO: how to make spinner selection persist when resuming this fragment?
+                    Log.d(TAG, "spinner onItemSelected called");
+                    LAST_SORT_SELECTED = position;
+                    if (habits.isEmpty()) {
+                        queryDatabase(LAST_SORT_SELECTED);
+                    } else {
+                        sortExistingHabits(LAST_SORT_SELECTED);
+                    }
+                    // queryWithSort(LAST_SORT_SELECTED); // 0-3, corresponds to sort type
                 }
                 @Override
                 public void onNothingSelected(AdapterView<?> parent) {

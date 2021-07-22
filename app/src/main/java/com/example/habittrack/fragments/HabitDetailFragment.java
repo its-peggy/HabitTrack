@@ -1,5 +1,8 @@
 package com.example.habittrack.fragments;
 
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -7,20 +10,29 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.GridView;
+import android.widget.ImageButton;
+import android.widget.PopupWindow;
 import android.widget.Spinner;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.example.habittrack.HabitWrapper;
+import com.example.habittrack.IconsAdapter;
 import com.example.habittrack.R;
 import com.example.habittrack.models.Habit;
 import com.example.habittrack.models.Progress;
+import com.parse.GetDataCallback;
 import com.parse.ParseException;
+import com.parse.ParseFile;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
@@ -29,6 +41,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.List;
 
 public class HabitDetailFragment extends Fragment {
 
@@ -43,6 +56,7 @@ public class HabitDetailFragment extends Fragment {
     private Spinner spEditTag;
     private TimePicker tpEditReminderTime;
     private Button btnEditHabit;
+    private ImageButton ibDetailIconButton;
 
     public HabitDetailFragment() { }
 
@@ -50,7 +64,10 @@ public class HabitDetailFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Bundle bundle = getArguments();
-        habit = (Habit) bundle.getSerializable("Habit");
+        HabitWrapper hw = (HabitWrapper) bundle.getSerializable("Habit");
+        List<Habit> habits = hw.getHabits();
+        int position = bundle.getInt("Position");
+        habit = habits.get(position);
         progress = habit.getTodayProgress();
     }
 
@@ -70,6 +87,7 @@ public class HabitDetailFragment extends Fragment {
         spEditTag = view.findViewById(R.id.spEditTag);
         tpEditReminderTime = view.findViewById(R.id.tpEditReminderTime);
         btnEditHabit = view.findViewById(R.id.btnEditHabit);
+        ibDetailIconButton = view.findViewById(R.id.ibDetailIconButton);
 
         ArrayAdapter<CharSequence> adapterTimeOfDay = ArrayAdapter.createFromResource(getActivity(),
                 R.array.create_time_of_day_array, android.R.layout.simple_spinner_item);
@@ -90,6 +108,56 @@ public class HabitDetailFragment extends Fragment {
         LocalDateTime localDateTime = habit.getRemindAtTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
         tpEditReminderTime.setHour(localDateTime.getHour());
         tpEditReminderTime.setMinute(localDateTime.getMinute());
+
+        ParseFile icon = habit.getIcon();
+        icon.getDataInBackground(new GetDataCallback() {
+            @Override
+            public void done(byte[] data, ParseException e) {
+                if (e != null) {
+                    Log.e(TAG, "Error retrieving habit icon");
+                    return;
+                }
+                Bitmap bitmapIcon = BitmapFactory.decodeByteArray(data, 0, data.length);
+                ibDetailIconButton.setImageBitmap(bitmapIcon);
+            }
+        });
+
+        ibDetailIconButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                LayoutInflater layoutInflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                ViewGroup container = (ViewGroup) layoutInflater.inflate(R.layout.popup_icon_selection_window, null);
+
+                GridView gridView = (GridView) container.findViewById(R.id.gridView);
+                Button btnSaveIcon = (Button) container.findViewById(R.id.btnSaveIcon);
+
+                gridView.setAdapter(new IconsAdapter(getContext()));
+                final int[] lastSelected = {0};
+
+                gridView.setSelection(0); // TODO: how to retrieve position from icon drawable?
+
+                gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        // Toast.makeText(getContext(), "icon at position " + position + " clicked", Toast.LENGTH_SHORT).show();
+                        lastSelected[0] = position;
+                    }
+                });
+
+                PopupWindow popupWindow = new PopupWindow(container, 800, 800, true);
+                popupWindow.showAtLocation(v, Gravity.CENTER, 0, 0);
+
+                btnSaveIcon.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        // Toast.makeText(getContext(), "save button", Toast.LENGTH_SHORT).show();
+                        int pos = lastSelected[0]; // TODO: better way to get currently selected position?
+                        ibDetailIconButton.setImageResource((Integer) gridView.getItemAtPosition(pos));
+                        popupWindow.dismiss();
+                    }
+                });
+            }
+        });
 
         btnEditHabit.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -134,6 +202,7 @@ public class HabitDetailFragment extends Fragment {
                         }
                         Log.i(TAG, "Habit save was successful!");
                         HomeFragment homeFragment = new HomeFragment();
+
                         getActivity().getSupportFragmentManager().beginTransaction()
                                 .replace(R.id.flContainer, homeFragment, "findThisFragment")
                                 .addToBackStack(null)
