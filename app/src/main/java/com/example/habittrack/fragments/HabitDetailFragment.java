@@ -143,7 +143,6 @@ public class HabitDetailFragment extends Fragment {
                 gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        // Toast.makeText(getContext(), "icon at position " + position + " clicked", Toast.LENGTH_SHORT).show();
                         lastSelected[0] = position;
                     }
                 });
@@ -154,7 +153,6 @@ public class HabitDetailFragment extends Fragment {
                 btnSaveIcon.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        // Toast.makeText(getContext(), "save button", Toast.LENGTH_SHORT).show();
                         int pos = lastSelected[0]; // TODO: better way to get currently selected position?
                         ibDetailIconButton.setImageBitmap((Bitmap) gridView.getItemAtPosition(pos));
                         popupWindow.dismiss();

@@ -27,7 +27,6 @@ public class MainActivity extends AppCompatActivity {
     private BottomNavigationView bottomNavigationView;
 
     List<Habit> habitList = new ArrayList<>();
-    List<Progress> progressList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,7 +55,6 @@ public class MainActivity extends AppCompatActivity {
                 }
                 Bundle bundle = new Bundle();
                 bundle.putSerializable("Habit", new HabitWrapper(habitList));
-                bundle.putSerializable("Progress", new ProgressWrapper(progressList));
                 fragment.setArguments(bundle);
                 fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).commit();
                 return true;

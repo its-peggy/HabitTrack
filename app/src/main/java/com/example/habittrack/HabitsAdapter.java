@@ -50,9 +50,7 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private static final int HEADER_VIEW = 100;
     private static final int SECTION_HEADER_VIEW = 2;
     private Context context;
-    private static Map<Habit, Progress> habitProgressMap = new HashMap<>();
     private List<Habit> habits;
-    // private List<Progress> progresses; // TODO: is this actually needed?
 
     private static final List<String> TIME_OF_DAY_SECTIONS = Arrays.asList("All day", "Morning", "Noon", "Afternoon", "Evening", "Night");
     private static final List<String> TAG_SECTIONS = Arrays.asList("Education", "Exercise", "Health", "Personal", "Productivity");
@@ -86,7 +84,6 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     public HabitsAdapter(Context context, List<Habit> habits) {
         this.context = context;
         this.habits = habits;
-        // this.progresses = progresses;
     }
 
     @NonNull
@@ -208,8 +205,6 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     HabitDetailFragment habitDetailFragment = new HabitDetailFragment();
                     Bundle bundle = new Bundle();
                     int originalPosition = habitPositionToOriginal.get(position);
-                    Habit habit = habits.get(originalPosition);
-                    // bundle.putSerializable("Habit", habit);
                     bundle.putSerializable("Habit", new HabitWrapper(habits));
                     bundle.putInt("Position", originalPosition);
                     habitDetailFragment.setArguments(bundle);
@@ -371,16 +366,6 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 }
                 habits.clear();
                 habits.addAll(queriedHabits);
-                // progresses.clear();
-                habitProgressMap.clear();
-                for (Habit habit : habits) {
-                    Progress progress = habit.getTodayProgress();
-//                        Log.i(TAG, "Habit: " + habit.getName()
-//                                + " Progress: " + progress.getDate() + " is " + progress.getQtyCompleted() + " of " + progress.getQtyGoal());
-//                        Log.i(TAG, "Creation Date: " + habit.getCreatedAt().getClass());
-                    // progresses.add(progress);
-                    habitProgressMap.put(habit, progress);
-                }
                 makeSectionHeaderPositionToName(habits, sortType);
                 notifyDataSetChanged();
             }
@@ -403,10 +388,6 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 break;
         }
         makeSectionHeaderPositionToName(habits, sortType);
-//        progresses.clear();
-//        for (Habit habit : habits) {
-//            progresses.add(habitProgressMap.get(habit));
-//        }
         notifyDataSetChanged();
     }
 
@@ -431,20 +412,17 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                     Log.d(TAG, "spinner onItemSelected called");
-                    LAST_SORT_SELECTED = position;
+                    LAST_SORT_SELECTED = position; // 0-3, corresponds to sort type
                     if (habits.isEmpty()) {
                         queryDatabase(LAST_SORT_SELECTED);
                     } else {
                         sortExistingHabits(LAST_SORT_SELECTED);
                     }
-                    // queryWithSort(LAST_SORT_SELECTED); // 0-3, corresponds to sort type
                 }
                 @Override
                 public void onNothingSelected(AdapterView<?> parent) {
-                    // TODO: what goes here?
                 }
             });
-
         }
 
         public void bind() {

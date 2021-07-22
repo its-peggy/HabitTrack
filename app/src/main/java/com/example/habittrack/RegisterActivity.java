@@ -49,14 +49,11 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void registerUser(String username, String password, String firstName, String lastName) {
-        // Create the ParseUser
         ParseUser user = new ParseUser();
-        // Set properties
         user.setUsername(username);
         user.setPassword(password);
         user.put("firstName", firstName);
         user.put("lastName", lastName);
-        // Invoke signUpInBackground
         user.signUpInBackground(new SignUpCallback() {
             public void done(ParseException e) {
                 if (e != null) {
