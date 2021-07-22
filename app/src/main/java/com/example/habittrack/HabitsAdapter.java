@@ -52,7 +52,7 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private Context context;
     private static Map<Habit, Progress> habitProgressMap = new HashMap<>();
     private List<Habit> habits;
-    private List<Progress> progresses; // TODO: is this actually needed?
+    // private List<Progress> progresses; // TODO: is this actually needed?
 
     private static final List<String> TIME_OF_DAY_SECTIONS = Arrays.asList("All day", "Morning", "Noon", "Afternoon", "Evening", "Night");
     private static final List<String> TAG_SECTIONS = Arrays.asList("Education", "Exercise", "Health", "Personal", "Productivity");
@@ -83,10 +83,10 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         sortTypeToSectionNames.put(3, STATUS_SECTIONS);
     }
 
-    public HabitsAdapter(Context context, List<Habit> habits, List<Progress> progresses) {
+    public HabitsAdapter(Context context, List<Habit> habits) {
         this.context = context;
         this.habits = habits;
-        this.progresses = progresses;
+        // this.progresses = progresses;
     }
 
     @NonNull
@@ -371,14 +371,14 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 }
                 habits.clear();
                 habits.addAll(queriedHabits);
-                progresses.clear();
+                // progresses.clear();
                 habitProgressMap.clear();
                 for (Habit habit : habits) {
                     Progress progress = habit.getTodayProgress();
 //                        Log.i(TAG, "Habit: " + habit.getName()
 //                                + " Progress: " + progress.getDate() + " is " + progress.getQtyCompleted() + " of " + progress.getQtyGoal());
 //                        Log.i(TAG, "Creation Date: " + habit.getCreatedAt().getClass());
-                    progresses.add(progress);
+                    // progresses.add(progress);
                     habitProgressMap.put(habit, progress);
                 }
                 makeSectionHeaderPositionToName(habits, sortType);
@@ -403,10 +403,10 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 break;
         }
         makeSectionHeaderPositionToName(habits, sortType);
-        progresses.clear();
-        for (Habit habit : habits) {
-            progresses.add(habitProgressMap.get(habit));
-        }
+//        progresses.clear();
+//        for (Habit habit : habits) {
+//            progresses.add(habitProgressMap.get(habit));
+//        }
         notifyDataSetChanged();
     }
 

@@ -54,7 +54,7 @@ public class CreateFragment extends Fragment {
     public static final String TAG = "CreateFragment";
 
     private List<Habit> habits;
-    private List<Progress> progresses;
+    // private List<Progress> progresses;
 
     private EditText etCreateHabitName;
     private EditText etCreateHabitGoalQty;
@@ -83,9 +83,9 @@ public class CreateFragment extends Fragment {
 
         Bundle bundle = getArguments();
         HabitWrapper hw =(HabitWrapper) bundle.getSerializable("Habit");
-        ProgressWrapper pw = (ProgressWrapper) bundle.getSerializable("Progress");
+        // ProgressWrapper pw = (ProgressWrapper) bundle.getSerializable("Progress");
         habits = hw.getHabits();
-        progresses = pw.getProgress();
+        // progresses = pw.getProgress();
 
         etCreateHabitName = view.findViewById(R.id.etCreateHabitName);
         etCreateHabitGoalQty = view.findViewById(R.id.etCreateHabitGoalQty);
@@ -134,7 +134,7 @@ public class CreateFragment extends Fragment {
                     public void onClick(View v) {
                         // Toast.makeText(getContext(), "save button", Toast.LENGTH_SHORT).show();
                         int pos = lastSelected[0]; // TODO: better way to get currently selected position?
-                        ibIconButton.setImageResource((Integer) gridView.getItemAtPosition(pos));
+                        ibIconButton.setImageBitmap((Bitmap) gridView.getItemAtPosition(pos));
                         popupWindow.dismiss();
                     }
                 });
@@ -222,13 +222,13 @@ public class CreateFragment extends Fragment {
                                     Log.e(TAG, "Error associating habit ID to progress object");
                                     return;
                                 }
-                                progresses.add(progress);
-                                Log.i(TAG, "Updated progress object with habit ID");
+//                                progresses.add(progress);
+//                                Log.i(TAG, "Updated progress object with habit ID");
 
                                 HomeFragment homeFragment = new HomeFragment();
                                 Bundle bundle = new Bundle();
                                 bundle.putSerializable("Habit", new HabitWrapper(habits));
-                                bundle.putSerializable("Progress", new ProgressWrapper(progresses));
+                                // bundle.putSerializable("Progress", new ProgressWrapper(progresses));
                                 homeFragment.setArguments(bundle);
                                 getActivity().getSupportFragmentManager().beginTransaction()
                                         .replace(R.id.flContainer, homeFragment, "findThisFragment")

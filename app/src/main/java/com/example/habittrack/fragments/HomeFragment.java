@@ -36,7 +36,7 @@ public class HomeFragment extends Fragment {
     protected RecyclerView rvHabits;
     protected HabitsAdapter adapter;
     protected List<Habit> habits;
-    protected List<Progress> progresses;
+    // protected List<Progress> progresses;
 
     public HomeFragment() { }
 
@@ -58,12 +58,12 @@ public class HomeFragment extends Fragment {
         Bundle bundle = getArguments();
         if (bundle != null) {
             HabitWrapper hw = (HabitWrapper) bundle.getSerializable("Habit");
-            ProgressWrapper pw = (ProgressWrapper) bundle.getSerializable("Progress");
+            // ProgressWrapper pw = (ProgressWrapper) bundle.getSerializable("Progress");
             habits = hw.getHabits();
-            progresses = pw.getProgress();
+            // progresses = pw.getProgress();
         }
 
-        adapter = new HabitsAdapter(getContext(), habits, progresses);
+        adapter = new HabitsAdapter(getContext(), habits);
 
         rvHabits.setAdapter(adapter);
         rvHabits.setLayoutManager(new LinearLayoutManager(getContext()));

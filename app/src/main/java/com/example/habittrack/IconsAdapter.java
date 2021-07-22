@@ -1,37 +1,56 @@
 package com.example.habittrack;
 
 import android.content.Context;
+import android.content.res.AssetManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+
 public class IconsAdapter extends BaseAdapter {
 
+    public static final String TAG = "IconsAdapter";
+
     private Context context;
-    // TODO: how to not hardcode these
-    public Integer[] icons = {
-            R.drawable.icons8_abc_100, R.drawable.icons8_airplane_take_off_100,
-            R.drawable.icons8_alarm_clock_100, R.drawable.icons8_alcoholic_cocktail_100,
-            R.drawable.icons8_american_football_ball_100, R.drawable.icons8_apricot_100,
-            R.drawable.icons8_around_the_globe_100, R.drawable.icons8_avocado_100,
-            R.drawable.icons8_baby_bottle_100, R.drawable.icons8_bag_100,
-            R.drawable.icons8_bank_cards_100, R.drawable.icons8_barbell_100
-    };
+    private List<Bitmap> iconBitmaps = new ArrayList<>();
+
+    private void getIconBitmaps() throws IOException {
+        AssetManager assetManager = context.getAssets();
+        String[] iconPaths = assetManager.list("icons");
+        for (int i = 0; i < iconPaths.length; i++) {
+            InputStream inputStream = assetManager.open("icons/" + iconPaths[i]);
+            Log.d(TAG, iconPaths[i]);
+            Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+            iconBitmaps.add(bitmap);
+        }
+    }
 
     public IconsAdapter(Context context) {
         this.context = context;
+        try {
+            getIconBitmaps();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public int getCount() {
-        return icons.length;
+        return iconBitmaps.size();
     }
 
     @Override
     public Object getItem(int position) {
-        return icons[position];
+        return iconBitmaps.get(position);
     }
 
     @Override
@@ -42,7 +61,7 @@ public class IconsAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         ImageView imageView = new ImageView(context);
-        imageView.setImageResource(icons[position]);
+        imageView.setImageBitmap(iconBitmaps.get(position));
         imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
         imageView.setLayoutParams(new GridView.LayoutParams(100, 100));
         imageView.setPadding(4, 4, 4, 4);

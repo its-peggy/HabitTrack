@@ -3,6 +3,8 @@ package com.example.habittrack.fragments;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -36,6 +38,7 @@ import com.parse.ParseFile;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
+import java.io.ByteArrayOutputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -46,6 +49,7 @@ import java.util.List;
 public class HabitDetailFragment extends Fragment {
 
     public static final String TAG = "HabitDetailFragment";
+    protected List<Habit> habits;
     protected Habit habit;
     protected Progress progress;
 
@@ -65,7 +69,7 @@ public class HabitDetailFragment extends Fragment {
         super.onCreate(savedInstanceState);
         Bundle bundle = getArguments();
         HabitWrapper hw = (HabitWrapper) bundle.getSerializable("Habit");
-        List<Habit> habits = hw.getHabits();
+        habits = hw.getHabits();
         int position = bundle.getInt("Position");
         habit = habits.get(position);
         progress = habit.getTodayProgress();
@@ -152,7 +156,7 @@ public class HabitDetailFragment extends Fragment {
                     public void onClick(View v) {
                         // Toast.makeText(getContext(), "save button", Toast.LENGTH_SHORT).show();
                         int pos = lastSelected[0]; // TODO: better way to get currently selected position?
-                        ibDetailIconButton.setImageResource((Integer) gridView.getItemAtPosition(pos));
+                        ibDetailIconButton.setImageBitmap((Bitmap) gridView.getItemAtPosition(pos));
                         popupWindow.dismiss();
                     }
                 });
@@ -162,6 +166,13 @@ public class HabitDetailFragment extends Fragment {
         btnEditHabit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Drawable drawableIcon = ibDetailIconButton.getDrawable();
+                Bitmap bitmap = ((BitmapDrawable) drawableIcon).getBitmap();
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                byte[] iconByteArray = stream.toByteArray();
+                ParseFile icon = new ParseFile("icon.png", iconByteArray);
+
                 String habitName = etEditHabitName.getText().toString();
                 int habitGoalQty = Integer.parseInt(etEditHabitGoalQty.getText().toString());
                 String habitUnits = etEditHabitUnits.getText().toString();
@@ -180,7 +191,7 @@ public class HabitDetailFragment extends Fragment {
                 Date reminderDateObject = Date.from(nextReminderDateTime.atZone(ZoneId.systemDefault()).toInstant());
 
                 habit.setName(habitName);
-                // habit.setIcon(); // TODO: let user select icon
+                habit.setIcon(icon);
                 habit.setTag(tag);
                 habit.setQtyGoal(habitGoalQty);
                 habit.setUnit(habitUnits);
@@ -202,7 +213,9 @@ public class HabitDetailFragment extends Fragment {
                         }
                         Log.i(TAG, "Habit save was successful!");
                         HomeFragment homeFragment = new HomeFragment();
-
+                        Bundle bundle = new Bundle();
+                        bundle.putSerializable("Habit", new HabitWrapper(habits));
+                        homeFragment.setArguments(bundle);
                         getActivity().getSupportFragmentManager().beginTransaction()
                                 .replace(R.id.flContainer, homeFragment, "findThisFragment")
                                 .addToBackStack(null)

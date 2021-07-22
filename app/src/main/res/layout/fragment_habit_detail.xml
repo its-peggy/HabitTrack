@@ -94,6 +94,5 @@
         android:layout_marginTop="6dp"
         android:adjustViewBounds="true"
         android:scaleType="fitCenter"
-        android:src="@drawable/icons8_abc_100"
-        tools:src="@drawable/icons8_abc_100" />
+        tools:src="@tools:sample/avatars" />
 </RelativeLayout>
