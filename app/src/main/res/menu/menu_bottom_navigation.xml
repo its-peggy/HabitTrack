@@ -8,12 +8,6 @@
         android:title="home"
         app:showAsAction="always" />
     <item
-        android:id="@+id/action_create"
-        android:enabled="true"
-        android:icon="@drawable/nav_create_selector"
-        android:title="create"
-        app:showAsAction="always" />
-    <item
         android:id="@+id/action_progress"
         android:enabled="true"
         android:icon="@drawable/nav_progress_selector"

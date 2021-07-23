@@ -12,8 +12,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import com.example.habittrack.MainActivity;
 import com.example.habittrack.R;
 import com.example.habittrack.StartActivity;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.parse.ParseUser;
 
 public class ProfileFragment extends Fragment {
@@ -30,6 +32,8 @@ public class ProfileFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        BottomNavigationView bottomNav = ((MainActivity)getActivity()).findViewById(R.id.bottomNavigation);
+        bottomNav.setVisibility(View.VISIBLE);
         return inflater.inflate(R.layout.fragment_profile, container, false);
     }
 

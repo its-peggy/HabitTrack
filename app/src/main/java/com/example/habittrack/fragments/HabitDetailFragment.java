@@ -33,6 +33,7 @@ import com.example.habittrack.MainActivity;
 import com.example.habittrack.R;
 import com.example.habittrack.models.Habit;
 import com.example.habittrack.models.Progress;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.parse.GetDataCallback;
 import com.parse.ParseException;
 import com.parse.ParseFile;
@@ -68,6 +69,10 @@ public class HabitDetailFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+//        BottomNavigationView bottomNavBar = getActivity().findViewById(R.id.bottomNavigation);
+//        bottomNavBar.setVisiblity(View.GONE);
+
         Bundle bundle = getArguments();
         habits = ((MainActivity)getActivity()).getHabitList();
         int position = bundle.getInt("Position");

@@ -32,6 +32,7 @@ import com.example.habittrack.IconsAdapter;
 import com.example.habittrack.MainActivity;
 import com.example.habittrack.models.Habit;
 import com.example.habittrack.models.Progress;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseUser;
@@ -71,12 +72,16 @@ public class CreateFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        BottomNavigationView bottomNav = ((MainActivity)getActivity()).findViewById(R.id.bottomNavigation);
+        bottomNav.setVisibility(View.GONE);
         return inflater.inflate(R.layout.fragment_create, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+
         habits = ((MainActivity)getActivity()).getHabitList();
 
         etCreateHabitName = view.findViewById(R.id.etCreateHabitName);

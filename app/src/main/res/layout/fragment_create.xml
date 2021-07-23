@@ -1,19 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/fragment_create_relative_layout"
+    android:transitionName="shared_element_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:numberpicker="http://schemas.android.com/apk/res-auto"
     tools:context=".fragments.CreateFragment">
-
-<!--    <SeekBar-->
-<!--        android:id="@+id/simpleSeekBar"-->
-<!--        android:layout_width="fill_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:max="200"-->
-<!--        android:progress="50"-->
-<!--        android:progressDrawable="@drawable/custom_progress_gradient"/>&lt;!&ndash; set custom progress drawable for the progress &ndash;&gt;-->
-
 
     <EditText
         android:id="@+id/etCreateHabitName"

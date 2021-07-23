@@ -52,9 +52,6 @@ public class MainActivity extends AppCompatActivity {
                     case R.id.action_home:
                         fragment = new HomeFragment();
                         break;
-                    case R.id.action_create:
-                        fragment = new CreateFragment();
-                        break;
                     case R.id.action_progress:
                         fragment = new ProgressFragment();
                         break;
@@ -63,9 +60,6 @@ public class MainActivity extends AppCompatActivity {
                         fragment = new ProfileFragment();
                         break;
                 }
-                Bundle bundle = new Bundle();
-                bundle.putSerializable("Habit", new HabitWrapper(habitList));
-                fragment.setArguments(bundle);
                 fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).commit();
                 return true;
             }
