@@ -29,6 +29,7 @@ import android.widget.Toast;
 
 import com.example.habittrack.HabitWrapper;
 import com.example.habittrack.IconsAdapter;
+import com.example.habittrack.MainActivity;
 import com.example.habittrack.R;
 import com.example.habittrack.models.Habit;
 import com.example.habittrack.models.Progress;
@@ -68,8 +69,7 @@ public class HabitDetailFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Bundle bundle = getArguments();
-        HabitWrapper hw = (HabitWrapper) bundle.getSerializable("Habit");
-        habits = hw.getHabits();
+        habits = ((MainActivity)getActivity()).getHabitList();
         int position = bundle.getInt("Position");
         habit = habits.get(position);
         progress = habit.getTodayProgress();
@@ -195,12 +195,13 @@ public class HabitDetailFragment extends Fragment {
                 habit.setUnit(habitUnits);
                 habit.setTimeOfDay(timeOfDay);
                 habit.setRemindAtTime(reminderDateObject);
-
                 progress.setQtyGoal(habitGoalQty);
                 if (progress.getQtyCompleted() >= habitGoalQty) {
                     progress.setQtyCompleted(habitGoalQty);
                     progress.setCompleted(true);
                 }
+
+                ((MainActivity)getActivity()).setHabitList(habits);
 
                 habit.saveInBackground(new SaveCallback() {
                     @Override
@@ -211,9 +212,6 @@ public class HabitDetailFragment extends Fragment {
                         }
                         Log.i(TAG, "Habit save was successful!");
                         HomeFragment homeFragment = new HomeFragment();
-                        Bundle bundle = new Bundle();
-                        bundle.putSerializable("Habit", new HabitWrapper(habits));
-                        homeFragment.setArguments(bundle);
                         getActivity().getSupportFragmentManager().beginTransaction()
                                 .replace(R.id.flContainer, homeFragment, "findThisFragment")
                                 .addToBackStack(null)

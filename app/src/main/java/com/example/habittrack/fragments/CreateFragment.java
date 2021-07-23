@@ -1,6 +1,7 @@
 package com.example.habittrack.fragments;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -28,6 +29,7 @@ import android.widget.Toast;
 
 import com.example.habittrack.HabitWrapper;
 import com.example.habittrack.IconsAdapter;
+import com.example.habittrack.MainActivity;
 import com.example.habittrack.models.Habit;
 import com.example.habittrack.models.Progress;
 import com.parse.ParseException;
@@ -50,7 +52,6 @@ public class CreateFragment extends Fragment {
     public static final String TAG = "CreateFragment";
 
     private List<Habit> habits;
-    // private List<Progress> progresses;
 
     private EditText etCreateHabitName;
     private EditText etCreateHabitGoalQty;
@@ -76,12 +77,7 @@ public class CreateFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        Bundle bundle = getArguments();
-        HabitWrapper hw =(HabitWrapper) bundle.getSerializable("Habit");
-        // ProgressWrapper pw = (ProgressWrapper) bundle.getSerializable("Progress");
-        habits = hw.getHabits();
-        // progresses = pw.getProgress();
+        habits = ((MainActivity)getActivity()).getHabitList();
 
         etCreateHabitName = view.findViewById(R.id.etCreateHabitName);
         etCreateHabitGoalQty = view.findViewById(R.id.etCreateHabitGoalQty);
@@ -193,8 +189,7 @@ public class CreateFragment extends Fragment {
                 habit.setRemindAtTime(reminderDateObject);
 
                 progress.setUser(currentUser);
-                String todayDate = Progress.getTodayDateString();
-                progress.setDate(todayDate);
+                progress.setDate(Progress.getTodayDateString());
                 progress.setQtyCompleted(0);
                 progress.setQtyGoal(habitGoalQty);
                 progress.setPctCompleted(0);
@@ -218,26 +213,18 @@ public class CreateFragment extends Fragment {
                                     Log.e(TAG, "Error associating habit ID to progress object");
                                     return;
                                 }
-//                                progresses.add(progress);
-//                                Log.i(TAG, "Updated progress object with habit ID");
-
+                                ((MainActivity)getActivity()).setHabitList(habits);
                                 HomeFragment homeFragment = new HomeFragment();
-                                Bundle bundle = new Bundle();
-                                bundle.putSerializable("Habit", new HabitWrapper(habits));
-                                // bundle.putSerializable("Progress", new ProgressWrapper(progresses));
-                                homeFragment.setArguments(bundle);
                                 getActivity().getSupportFragmentManager().beginTransaction()
                                         .replace(R.id.flContainer, homeFragment, "findThisFragment")
                                         .addToBackStack(null)
                                         .commit();
+
                             }
                         });
                     }
                 });
-
             }
         });
-
     }
-
 }

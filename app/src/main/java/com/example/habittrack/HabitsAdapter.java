@@ -21,6 +21,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.example.habittrack.fragments.HabitDetailFragment;
 import com.example.habittrack.models.Habit;
@@ -202,10 +203,9 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 @Override
                 public boolean onLongClick(View v) {
                     int position = getAdapterPosition();
+                    int originalPosition = habitPositionToOriginal.get(position);
                     HabitDetailFragment habitDetailFragment = new HabitDetailFragment();
                     Bundle bundle = new Bundle();
-                    int originalPosition = habitPositionToOriginal.get(position);
-                    bundle.putSerializable("Habit", new HabitWrapper(habits));
                     bundle.putInt("Position", originalPosition);
                     habitDetailFragment.setArguments(bundle);
                     AppCompatActivity activity = (AppCompatActivity) itemView.getContext();
@@ -224,7 +224,7 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             if (icon != null) {
                 Glide.with(context)
                         .load(icon.getUrl())
-                        .transform(new CircleCrop())
+                        .transform(new CenterCrop())
                         .into(ivIcon);
             }
             tvHabitName.setText(habit.getName());
