@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.example.habittrack.fragments.CreateFragment;
 import com.example.habittrack.fragments.HomeFragment;
@@ -12,8 +13,10 @@ import com.example.habittrack.fragments.ProgressFragment;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -66,20 +69,46 @@ public class MainActivity extends AppCompatActivity {
         });
         bottomNavigationView.setSelectedItemId(R.id.action_home);
 
+        setMidnightAlarm();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, new IntentFilter("queried-database"));
+    }
+
+    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            HabitWrapper hw = (HabitWrapper) intent.getSerializableExtra("queriedHabits");
+            List<Habit> queriedHabits = hw.getHabits();
+            habitList = queriedHabits;
+        }
+    };
+
+    @Override
+    protected void onPause() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver);
+        super.onPause();
+    }
+
+    private void setMidnightAlarm() {
         LocalDate tomorrow = LocalDate.now().plusDays(1);
         LocalDateTime midnightTomorrow = tomorrow.atStartOfDay();
         long millisMidnightTomorrow = midnightTomorrow.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
 
         AlarmManager alarmManager = (AlarmManager) this.getSystemService(ALARM_SERVICE);
         Intent intent = new Intent(this, AlarmReceiver.class);
+        intent.putExtra("TYPE", "MIDNIGHT_UPDATE");
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
         alarmManager.set(AlarmManager.RTC_WAKEUP, millisMidnightTomorrow, pendingIntent);
-        Toast.makeText(this, "setting next alarm...", Toast.LENGTH_SHORT).show();
     }
 
     public List<Habit> getHabitList() {
         return habitList;
     }
+
     public void setHabitList(List<Habit> habits) {
         habitList = habits;
     }
