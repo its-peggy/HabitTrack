@@ -1,6 +1,9 @@
 package com.example.habittrack.fragments;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -27,6 +30,7 @@ import android.widget.Spinner;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.example.habittrack.AlarmReceiver;
 import com.example.habittrack.HabitWrapper;
 import com.example.habittrack.IconsAdapter;
 import com.example.habittrack.MainActivity;
@@ -55,6 +59,8 @@ public class HabitDetailFragment extends Fragment {
     protected Habit habit;
     protected Progress progress;
 
+    private Context context;
+
     private EditText etEditHabitName;
     private EditText etEditHabitGoalQty;
     private EditText etEditHabitUnits;
@@ -69,9 +75,10 @@ public class HabitDetailFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        context = getContext();
 
-//        BottomNavigationView bottomNavBar = getActivity().findViewById(R.id.bottomNavigation);
-//        bottomNavBar.setVisiblity(View.GONE);
+        BottomNavigationView bottomNavBar = getActivity().findViewById(R.id.bottomNavigation);
+        bottomNavBar.setVisibility(View.GONE);
 
         Bundle bundle = getArguments();
         habits = ((MainActivity)getActivity()).getHabitList();
@@ -181,6 +188,9 @@ public class HabitDetailFragment extends Fragment {
                 String habitUnits = etEditHabitUnits.getText().toString();
                 String timeOfDay = spEditTimeOfDay.getSelectedItem().toString();
                 String tag = spEditTag.getSelectedItem().toString();
+
+                LocalDateTime currentReminderDateTime = habit.getRemindAtTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+                LocalTime currentReminderTime = currentReminderDateTime.toLocalTime();
                 int reminderHour = tpEditReminderTime.getHour();
                 int reminderMinute = tpEditReminderTime.getMinute();
                 LocalTime nextReminderTime = LocalTime.of(reminderHour, reminderMinute);
@@ -192,6 +202,18 @@ public class HabitDetailFragment extends Fragment {
                 }
                 LocalDateTime nextReminderDateTime = LocalDateTime.of(nextReminderDate, nextReminderTime);
                 Date reminderDateObject = Date.from(nextReminderDateTime.atZone(ZoneId.systemDefault()).toInstant());
+
+                if (!nextReminderTime.equals(currentReminderTime)) {
+                    AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+                    Intent intent = new Intent(context, AlarmReceiver.class);
+                    intent.setAction(AlarmReceiver.TIME_NOTIFY_TAG);
+                    PendingIntent pendingIntent = PendingIntent.getBroadcast(context, habit.getRequestCode(), intent, 0);
+                    alarmManager.cancel(pendingIntent);
+
+                    PendingIntent newPendingIntent = PendingIntent.getBroadcast(context, habit.getRequestCode(), intent, 0);
+                    long reminderMillis = nextReminderDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+                    alarmManager.set(AlarmManager.RTC_WAKEUP, reminderMillis, newPendingIntent);
+                }
 
                 habit.setName(habitName);
                 habit.setIcon(icon);

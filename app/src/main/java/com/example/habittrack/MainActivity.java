@@ -12,11 +12,14 @@ import com.example.habittrack.fragments.ProfileFragment;
 import com.example.habittrack.fragments.ProgressFragment;
 
 import android.app.AlarmManager;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
@@ -69,13 +72,25 @@ public class MainActivity extends AppCompatActivity {
         });
         bottomNavigationView.setSelectedItemId(R.id.action_home);
 
-        setMidnightAlarm();
+        createNotificationChannel();
+
+        // setMidnightAlarm();
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, new IntentFilter("queried-database"));
+    private void createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            String name = "channel_0";
+            String description = "this is channel 0";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel("asdf", name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
     }
 
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
@@ -88,21 +103,29 @@ public class MainActivity extends AppCompatActivity {
     };
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, new IntentFilter("queried-database"));
+    }
+
+    @Override
     protected void onPause() {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver);
         super.onPause();
     }
 
     private void setMidnightAlarm() {
-        LocalDate tomorrow = LocalDate.now().plusDays(1);
-        LocalDateTime midnightTomorrow = tomorrow.atStartOfDay();
-        long millisMidnightTomorrow = midnightTomorrow.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-
         AlarmManager alarmManager = (AlarmManager) this.getSystemService(ALARM_SERVICE);
         Intent intent = new Intent(this, AlarmReceiver.class);
-        intent.putExtra("TYPE", "MIDNIGHT_UPDATE");
+        intent.setAction(AlarmReceiver.MIDNIGHT_TAG);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
-        alarmManager.set(AlarmManager.RTC_WAKEUP, millisMidnightTomorrow, pendingIntent);
+        alarmManager.set(AlarmManager.RTC_WAKEUP, getMidnightTomorrowInMillis(), pendingIntent);
+    }
+
+    private long getMidnightTomorrowInMillis() {
+        LocalDate tomorrow = LocalDate.now().plusDays(1);
+        LocalDateTime midnightTomorrow = tomorrow.atStartOfDay();
+        return midnightTomorrow.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
     }
 
     public List<Habit> getHabitList() {

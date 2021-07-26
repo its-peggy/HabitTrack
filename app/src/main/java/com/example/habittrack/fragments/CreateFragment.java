@@ -1,5 +1,7 @@
 package com.example.habittrack.fragments;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -27,6 +29,7 @@ import android.widget.Spinner;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.example.habittrack.AlarmReceiver;
 import com.example.habittrack.HabitWrapper;
 import com.example.habittrack.IconsAdapter;
 import com.example.habittrack.MainActivity;
@@ -40,7 +43,10 @@ import com.parse.SaveCallback;
 
 import com.example.habittrack.R;
 
+import org.apache.commons.lang3.SerializationUtils;
+
 import java.io.ByteArrayOutputStream;
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -48,11 +54,14 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 
+import static android.content.Context.ALARM_SERVICE;
+
 public class CreateFragment extends Fragment {
 
     public static final String TAG = "CreateFragment";
 
     private List<Habit> habits;
+    private Context context;
 
     private EditText etCreateHabitName;
     private EditText etCreateHabitGoalQty;
@@ -68,6 +77,7 @@ public class CreateFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        context = getContext();
     }
 
     @Override
@@ -148,6 +158,8 @@ public class CreateFragment extends Fragment {
                 byte[] iconByteArray = stream.toByteArray();
                 ParseFile icon = new ParseFile("icon.png", iconByteArray);
 
+                int requestCode = (int) (System.currentTimeMillis() % Integer.MAX_VALUE);
+
                 String habitName = etCreateHabitName.getText().toString();
                 String habitGoalQtyString = etCreateHabitGoalQty.getText().toString();
                 int habitGoalQty = 0;
@@ -172,6 +184,7 @@ public class CreateFragment extends Fragment {
                 }
                 LocalDateTime nextReminderDateTime = LocalDateTime.of(nextReminderDate, nextReminderTime);
                 Date reminderDateObject = Date.from(nextReminderDateTime.atZone(ZoneId.systemDefault()).toInstant());
+                long reminderTimeMillis = nextReminderDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
 
                 if (habitName.isEmpty() || habitUnits.isEmpty()) {
                     Toast.makeText(getContext(), "Please enter a value for all fields", Toast.LENGTH_SHORT).show();
@@ -192,6 +205,7 @@ public class CreateFragment extends Fragment {
                 habit.setTimeOfDay(timeOfDay);
                 habit.setStreak(0);
                 habit.setRemindAtTime(reminderDateObject);
+                habit.setRequestCode(requestCode);
 
                 progress.setUser(currentUser);
                 progress.setDate(Progress.getTodayDateString());
@@ -199,6 +213,16 @@ public class CreateFragment extends Fragment {
                 progress.setQtyGoal(habitGoalQty);
                 progress.setPctCompleted(0);
                 progress.setCompleted(false);
+
+                AlarmManager alarmManager = (AlarmManager) context.getSystemService(ALARM_SERVICE);
+                Intent intent = new Intent(context, AlarmReceiver.class);
+                intent.setAction(AlarmReceiver.TIME_NOTIFY_TAG);
+                intent.putExtra(Habit.KEY_NAME, habit.getName());
+                intent.putExtra(Habit.KEY_REQUEST_CODE, habit.getRequestCode());
+                intent.putExtra(Habit.KEY_REMIND_AT_TIME, reminderTimeMillis);
+
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(context, habit.getRequestCode(), intent, 0);
+                alarmManager.set(AlarmManager.RTC_WAKEUP, reminderTimeMillis, pendingIntent);
 
                 habit.saveInBackground(new SaveCallback() {
                     @Override

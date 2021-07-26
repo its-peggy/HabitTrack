@@ -45,19 +45,15 @@ public class HomeFragment extends Fragment {
     protected HabitsAdapter adapter;
     protected List<Habit> habits;
 
-   //  final FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-
     public HomeFragment() { }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        Log.d(TAG, "onCreate");
         super.onCreate(savedInstanceState);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        Log.d(TAG, "onCreateView");
         BottomNavigationView bottomNav = ((MainActivity)getActivity()).findViewById(R.id.bottomNavigation);
         bottomNav.setVisibility(View.VISIBLE);
         return inflater.inflate(R.layout.fragment_home, container, false);
@@ -65,7 +61,6 @@ public class HomeFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        Log.d(TAG, "onViewCreated");
         super.onViewCreated(view, savedInstanceState);
         fabNewHabit = view.findViewById(R.id.fabNewHabit);
         rvHabits = view.findViewById(R.id.rvHabits);
@@ -80,8 +75,6 @@ public class HomeFragment extends Fragment {
                 CreateFragment createFragment = new CreateFragment();
 
                 MaterialContainerTransform transform = new MaterialContainerTransform();
-
-
                 transform.setAllContainerColors(MaterialColors.getColor(v, R.attr.colorSurface));
                 transform.setPathMotion(new MaterialArcMotion());
                 transform.setDuration(400);

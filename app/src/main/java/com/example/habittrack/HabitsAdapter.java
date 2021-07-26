@@ -3,8 +3,10 @@ package com.example.habittrack;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -52,6 +54,8 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private static final int SECTION_HEADER_VIEW = 2;
     private Context context;
     private List<Habit> habits;
+
+    private GestureDetector detector;
 
     private static final List<String> TIME_OF_DAY_SECTIONS = Arrays.asList("All day", "Morning", "Noon", "Afternoon", "Evening", "Night");
     private static final List<String> TAG_SECTIONS = Arrays.asList("Education", "Exercise", "Health", "Personal", "Productivity");
@@ -171,6 +175,7 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     }
 
     class HabitViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        // implements View.OnClickListener
 
         private ImageView ivIcon;
         private TextView tvHabitName;
@@ -198,6 +203,7 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             tvTimeOfDay = itemView.findViewById(R.id.tvTimeOfDay);
             tvRemind = itemView.findViewById(R.id.tvRemind);
             tvTag = itemView.findViewById(R.id.tvTag);
+
             itemView.setOnClickListener(this);
             itemView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override

@@ -28,7 +28,6 @@ public class IconsAdapter extends BaseAdapter {
         String[] iconPaths = assetManager.list("icons");
         for (int i = 0; i < iconPaths.length; i++) {
             InputStream inputStream = assetManager.open("icons/" + iconPaths[i]);
-            Log.d(TAG, iconPaths[i]);
             Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
             iconBitmaps.add(bitmap);
         }

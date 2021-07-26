@@ -1,5 +1,6 @@
 package com.example.habittrack.models;
 
+import com.example.habittrack.fragments.CreateFragment;
 import com.parse.ParseClassName;
 import com.parse.ParseFile;
 import com.parse.ParseObject;
@@ -26,6 +27,7 @@ public class Habit extends ParseObject implements Serializable {
     public static final String KEY_STREAK = "streak";
     public static final String KEY_REMIND_AT_TIME = "remindAtTime";
     public static final String KEY_REMIND_AT_LOCATION = "remindAtLocation";
+    public static final String KEY_REQUEST_CODE = "requestCode";
     public static final Map<String, Integer> TIME_OF_DAY_MAP;
 
     static {
@@ -129,6 +131,14 @@ public class Habit extends ParseObject implements Serializable {
         put(KEY_REMIND_AT_LOCATION, location);
     }
 
+    public int getRequestCode() {
+        return getInt(KEY_REQUEST_CODE);
+    }
+
+    public void setRequestCode(int requestCode) {
+        put(KEY_REQUEST_CODE, requestCode);
+    }
+
     public static class CreationDateComparator implements Comparator<Habit> {
         @Override
         public int compare(Habit habit1, Habit habit2) {
@@ -141,7 +151,14 @@ public class Habit extends ParseObject implements Serializable {
     public static class TimeOfDayComparator implements Comparator<Habit> {
         @Override
         public int compare(Habit habit1, Habit habit2) {
-            return habit1.getTimeOfDayIndex() - habit2.getTimeOfDayIndex();
+            int timeOfDay1 = habit1.getTimeOfDayIndex();
+            int timeOfDay2 = habit2.getTimeOfDayIndex();
+            if (timeOfDay1 == timeOfDay2) {
+                Date date1 = habit1.getCreatedAt();
+                Date date2 = habit2.getCreatedAt();
+                return date1.compareTo(date2);
+            }
+            return timeOfDay1 - timeOfDay2;
         }
     }
 
@@ -150,6 +167,11 @@ public class Habit extends ParseObject implements Serializable {
         public int compare(Habit habit1, Habit habit2) {
             String tag1 = habit1.getTag();
             String tag2 = habit2.getTag();
+            if (tag1.compareTo(tag2) == 0) {
+                Date date1 = habit1.getCreatedAt();
+                Date date2 = habit2.getCreatedAt();
+                return date1.compareTo(date2);
+            }
             return tag1.compareTo(tag2);
         }
     }
@@ -159,6 +181,11 @@ public class Habit extends ParseObject implements Serializable {
         public int compare(Habit habit1, Habit habit2) {
             Boolean status1 = habit1.getTodayProgress().getCompleted();
             Boolean status2 = habit2.getTodayProgress().getCompleted();
+            if (Boolean.compare(status1, status2) == 0) {
+                Date date1 = habit1.getCreatedAt();
+                Date date2 = habit2.getCreatedAt();
+                return date1.compareTo(date2);
+            }
             return Boolean.compare(status1, status2);
         }
     }
