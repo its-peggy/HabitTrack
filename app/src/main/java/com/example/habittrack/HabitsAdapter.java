@@ -174,8 +174,7 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         return super.getItemViewType(position);
     }
 
-    class HabitViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        // implements View.OnClickListener
+    class HabitViewHolder extends RecyclerView.ViewHolder {
 
         private ImageView ivIcon;
         private TextView tvHabitName;
@@ -195,8 +194,15 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         private TextView tvPopupProgress;
         private Button btnSaveProgress;
 
+        private int habitPosition;
+        private HabitViewHolder habitViewHolder;
+        private View view;
+
         public HabitViewHolder(@NonNull View itemView) {
             super(itemView);
+            habitViewHolder = this;
+            view = itemView;
+
             ivIcon = itemView.findViewById(R.id.ivIcon);
             tvHabitName = itemView.findViewById(R.id.tvHabitName);
             tvAmount = itemView.findViewById(R.id.tvAmount);
@@ -204,12 +210,76 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             tvRemind = itemView.findViewById(R.id.tvRemind);
             tvTag = itemView.findViewById(R.id.tvTag);
 
-            itemView.setOnClickListener(this);
-            itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            GestureDetector gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
                 @Override
-                public boolean onLongClick(View v) {
-                    int position = getAdapterPosition();
-                    int originalPosition = habitPositionToOriginal.get(position);
+                public boolean onSingleTapConfirmed(MotionEvent e) {
+                    layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                    ViewGroup container = (ViewGroup) layoutInflater.inflate(R.layout.popup_progress_window, null);
+
+                    tvPopupHabitName = container.findViewById(R.id.tvPopupHabitName);
+                    sbProgress = container.findViewById(R.id.sbProgress);
+                    tvSeekBarMin = container.findViewById(R.id.tvSeekBarMin);
+                    tvSeekBarMax = container.findViewById(R.id.tvSeekBarMax);
+                    tvPopupProgress = container.findViewById(R.id.tvPopupProgress);
+                    btnSaveProgress = container.findViewById(R.id.btnSaveProgress);
+
+                    int seekBarMin = 0;
+                    int seekBarMax = mHabit.getQtyGoal();
+                    int currentProgress = mHabit.getTodayProgress().getQtyCompleted();
+                    int goalQty = mHabit.getQtyGoal();
+                    String unit = mHabit.getUnit();
+
+                    tvPopupHabitName.setText(mHabit.getName());
+                    sbProgress.setMax(seekBarMax);
+                    sbProgress.setProgress(currentProgress);
+                    tvSeekBarMin.setText(String.valueOf(seekBarMin));
+                    tvSeekBarMax.setText(String.valueOf(seekBarMax));
+                    String progress = currentProgress + "/" + goalQty + " " + unit;
+                    tvPopupProgress.setText(progress);
+
+                    sbProgress.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                        @Override
+                        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                            String updatedProgress = progress + "/" + goalQty + " " + unit;
+                            tvPopupProgress.setText(updatedProgress);
+                        }
+
+                        @Override
+                        public void onStartTrackingTouch(SeekBar seekBar) { }
+
+                        @Override
+                        public void onStopTrackingTouch(SeekBar seekBar) { }
+                    });
+
+                    popupWindow = new PopupWindow(container, 600, 400, true);
+                    popupWindow.showAtLocation(view, Gravity.CENTER, 0, 0);
+
+                    btnSaveProgress.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            int newProgress = sbProgress.getProgress();
+                            Progress progress = mHabit.getTodayProgress();
+                            int goal = progress.getQtyGoal();
+                            progress.setQtyCompleted(newProgress);
+                            progress.setPctCompleted(100 * (double) newProgress / goal);
+                            progress.setCompleted(newProgress == goal);
+                            progress.saveInBackground(new SaveCallback() {
+                                @Override
+                                public void done(ParseException e) {
+                                    notifyItemChanged(habitPosition);
+                                }
+                            });
+                            popupWindow.dismiss();
+                        }
+                    });
+
+                    return true;
+                }
+
+                @Override
+                public void onLongPress(MotionEvent e) {
+                    super.onLongPress(e);
+                    int originalPosition = habitPositionToOriginal.get(habitPosition);
                     HabitDetailFragment habitDetailFragment = new HabitDetailFragment();
                     Bundle bundle = new Bundle();
                     bundle.putInt("Position", originalPosition);
@@ -219,9 +289,40 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                             .replace(R.id.flContainer, habitDetailFragment, "findThisFragment")
                             .addToBackStack(null)
                             .commit();
+
+                }
+
+                @Override
+                public boolean onDoubleTap(MotionEvent e) {
+                    Progress progress = mHabit.getTodayProgress();
+                    int qtyGoal = progress.getQtyGoal();
+                    progress.setQtyCompleted(qtyGoal);
+                    progress.setCompleted(true);
+                    progress.setPctCompleted(1);
+                    progress.saveInBackground(new SaveCallback() {
+                        @Override
+                        public void done(ParseException e) {
+                            notifyItemChanged(habitPosition);
+                        }
+                    });
+                    return super.onDoubleTap(e);
+                }
+
+                @Override
+                public boolean onDown(MotionEvent e) {
                     return true;
                 }
+
             });
+
+            itemView.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    habitPosition = habitViewHolder.getLayoutPosition();
+                    return gestureDetector.onTouchEvent(event);
+                }
+            });
+
         }
 
         public void bind(Habit habit) {
@@ -249,73 +350,6 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 tvRemind.setText(formatter.format(localDateTime));
             }
             tvTag.setText(habit.getTag());
-        }
-
-        @Override
-        public void onClick(View v) {
-            int habitPosition = this.getLayoutPosition();
-
-            layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            ViewGroup container = (ViewGroup) layoutInflater.inflate(R.layout.popup_progress_window, null);
-
-            tvPopupHabitName = container.findViewById(R.id.tvPopupHabitName);
-            sbProgress = container.findViewById(R.id.sbProgress);
-            tvSeekBarMin = container.findViewById(R.id.tvSeekBarMin);
-            tvSeekBarMax = container.findViewById(R.id.tvSeekBarMax);
-            tvPopupProgress = container.findViewById(R.id.tvPopupProgress);
-            btnSaveProgress = container.findViewById(R.id.btnSaveProgress);
-
-            int seekBarMin = 0;
-            int seekBarMax = mHabit.getQtyGoal();
-            int currentProgress = mHabit.getTodayProgress().getQtyCompleted();
-            int goalQty = mHabit.getQtyGoal();
-            String unit = mHabit.getUnit();
-
-            tvPopupHabitName.setText(mHabit.getName());
-            sbProgress.setMax(seekBarMax);
-            sbProgress.setProgress(currentProgress);
-            tvSeekBarMin.setText(String.valueOf(seekBarMin));
-            tvSeekBarMax.setText(String.valueOf(seekBarMax));
-            String progress = currentProgress + "/" + goalQty + " " + unit;
-            tvPopupProgress.setText(progress);
-
-            sbProgress.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                @Override
-                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                    String updatedProgress = progress + "/" + goalQty + " " + unit;
-                    tvPopupProgress.setText(updatedProgress);
-                }
-
-                @Override
-                public void onStartTrackingTouch(SeekBar seekBar) { }
-
-                @Override
-                public void onStopTrackingTouch(SeekBar seekBar) { }
-            });
-
-            popupWindow = new PopupWindow(container, 600, 400, true);
-            popupWindow.showAtLocation(v, Gravity.CENTER, 0, 0);
-
-            btnSaveProgress.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    int newProgress = sbProgress.getProgress();
-                    Progress progress = mHabit.getTodayProgress();
-                    int goal = progress.getQtyGoal();
-                    progress.setQtyCompleted(newProgress);
-                    progress.setPctCompleted(100 * (double) newProgress / goal);
-                    progress.setCompleted(newProgress == goal);
-                    progress.saveInBackground(new SaveCallback() {
-                        @Override
-                        public void done(ParseException e) {
-                            Log.d("seekbar", "progress change saved");
-                            notifyItemChanged(habitPosition);
-                        }
-                    });
-                    popupWindow.dismiss();
-                }
-            });
-
         }
 
     }
@@ -396,8 +430,6 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         makeSectionHeaderPositionToName(habits, sortType);
         notifyDataSetChanged();
     }
-
-
 
     class HeaderViewHolder extends RecyclerView.ViewHolder {
 
