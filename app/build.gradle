@@ -1,6 +1,10 @@
 plugins {
     id 'com.android.application'
 }
+//
+//def apikeyPropertiesFile = rootProject.file("apikey.properties")
+//def apikeyProperties = new Properties()
+//apikeyProperties.load(new FileInputStream(apikeyPropertiesFile))
 
 android {
     compileSdkVersion 30
@@ -14,12 +18,14 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField 'String', 'MAPBOX_API_KEY', MAPBOX_API_KEY
     }
 
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            buildConfigField 'String', 'MAPBOX_API_KEY', MAPBOX_API_KEY
         }
     }
     compileOptions {
@@ -47,5 +53,9 @@ dependencies {
     annotationProcessor 'org.parceler:parceler:1.1.12'
     implementation 'com.github.travijuu:numberpicker:1.0.7'
     implementation 'org.apache.commons:commons-lang3:3.5'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
+    implementation 'com.github.kizitonwose:CalendarView:1.0.4'
+    implementation 'com.codepath.libraries:android-oauth-handler:2.2.0'
+    implementation 'com.codepath.libraries:asynchttpclient:2.0.0'
     // implementation "com.mapbox.search:mapbox-search-android-ui:1.0.0-beta.16"
 }

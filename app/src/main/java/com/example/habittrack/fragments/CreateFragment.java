@@ -78,6 +78,7 @@ public class CreateFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         context = getContext();
+        habits = ((MainActivity)getActivity()).getHabitList();
     }
 
     @Override
@@ -90,9 +91,6 @@ public class CreateFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-
-        habits = ((MainActivity)getActivity()).getHabitList();
 
         etCreateHabitName = view.findViewById(R.id.etCreateHabitName);
         etCreateHabitGoalQty = view.findViewById(R.id.etCreateHabitGoalQty);

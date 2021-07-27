@@ -1,10 +1,12 @@
 package com.example.habittrack.fragments;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
@@ -21,13 +23,17 @@ import com.parse.ParseUser;
 public class ProfileFragment extends Fragment {
 
     public static final String TAG = "ProfileFragment";
+    private Context context;
+
     private Button btnLogout;
+    private Button btnManageAddresses;
 
     public ProfileFragment() { }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        context = getContext();
     }
 
     @Override
@@ -40,7 +46,10 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
         btnLogout = view.findViewById(R.id.btnLogout);
+        btnManageAddresses = view.findViewById(R.id.btnManageAddresses);
+
         btnLogout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -49,5 +58,17 @@ public class ProfileFragment extends Fragment {
                 startActivity(i);
             }
         });
+
+        btnManageAddresses.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AddressFragment addressFragment = new AddressFragment();
+                getActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.flContainer, addressFragment, "findThisFragment")
+                        .addToBackStack(null)
+                        .commit();
+            }
+        });
+
     }
 }

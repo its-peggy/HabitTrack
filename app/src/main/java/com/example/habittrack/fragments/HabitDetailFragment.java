@@ -76,12 +76,12 @@ public class HabitDetailFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         context = getContext();
+        habits = ((MainActivity)getActivity()).getHabitList();
 
         BottomNavigationView bottomNavBar = getActivity().findViewById(R.id.bottomNavigation);
         bottomNavBar.setVisibility(View.GONE);
 
         Bundle bundle = getArguments();
-        habits = ((MainActivity)getActivity()).getHabitList();
         int position = bundle.getInt("Position");
         habit = habits.get(position);
         progress = habit.getTodayProgress();

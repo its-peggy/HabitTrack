@@ -20,6 +20,17 @@
         android:layout_marginBottom="4dp"
         android:text="Sign out" />
 
+        <Button
+            android:id="@+id/btnManageAddresses"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/btnLogout"
+            android:layout_alignParentStart="false"
+            android:layout_alignParentTop="false"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="300dp"
+            android:text="Manage addresses" />
+
     </RelativeLayout>
 
 </FrameLayout>

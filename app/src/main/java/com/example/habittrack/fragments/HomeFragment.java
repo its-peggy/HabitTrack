@@ -4,6 +4,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
 
@@ -23,6 +25,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.habittrack.BuildConfig;
 import com.example.habittrack.HabitWrapper;
 import com.example.habittrack.MainActivity;
 import com.example.habittrack.models.Habit;
@@ -40,6 +43,8 @@ import java.util.List;
 public class HomeFragment extends Fragment {
 
     public static final String TAG = "HomeFragment";
+    protected Context context;
+
     protected RecyclerView rvHabits;
     protected FloatingActionButton fabNewHabit;
     protected HabitsAdapter adapter;
@@ -50,6 +55,8 @@ public class HomeFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        context = getContext();
+        habits = ((MainActivity)getActivity()).getHabitList();
     }
 
     @Override
@@ -62,12 +69,13 @@ public class HomeFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
         fabNewHabit = view.findViewById(R.id.fabNewHabit);
+
         rvHabits = view.findViewById(R.id.rvHabits);
-        habits = ((MainActivity)getActivity()).getHabitList();
-        adapter = new HabitsAdapter(getContext(), habits);
+        adapter = new HabitsAdapter(context, habits);
         rvHabits.setAdapter(adapter);
-        rvHabits.setLayoutManager(new LinearLayoutManager(getContext()));
+        rvHabits.setLayoutManager(new LinearLayoutManager(context));
 
         fabNewHabit.setOnClickListener(new View.OnClickListener() {
             @Override

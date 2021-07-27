@@ -21,7 +21,6 @@ import com.parse.ParseUser;
 public class ProgressFragment extends Fragment {
 
     public static final String TAG = "ProgressFragment";
-    protected Button btnLogout;
 
     public ProgressFragment() {};
 

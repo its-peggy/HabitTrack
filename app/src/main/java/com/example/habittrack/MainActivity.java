@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
 
         createNotificationChannel();
 
-        // setMidnightAlarm();
+        setMidnightAlarm();
     }
 
     private void createNotificationChannel() {
