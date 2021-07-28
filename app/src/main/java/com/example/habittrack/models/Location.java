@@ -5,12 +5,17 @@ import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @ParseClassName("Location")
 public class Location extends ParseObject {
 
     public static final String KEY_USER = "user";
     public static final String KEY_NAME = "name";
     public static final String KEY_LOCATION = "location";
+
+    public static Map<String, Location> nameToLocationObject = new HashMap<>();
 
     public ParseUser getUser() {
         return getParseUser(KEY_USER);
@@ -36,5 +41,8 @@ public class Location extends ParseObject {
         put(KEY_LOCATION, location);
     }
 
-    // TODO: how to convert ParseGeoPoint to Google Maps location?
+    public static Location getLocationObjectByName(String locationName) {
+        return nameToLocationObject.get(locationName);
+    }
+
 }

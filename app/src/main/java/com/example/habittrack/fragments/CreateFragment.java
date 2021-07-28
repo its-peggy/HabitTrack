@@ -19,23 +19,23 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.PopupWindow;
-import android.widget.Spinner;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.example.habittrack.AlarmReceiver;
-import com.example.habittrack.HabitWrapper;
 import com.example.habittrack.IconsAdapter;
 import com.example.habittrack.MainActivity;
 import com.example.habittrack.models.Habit;
+import com.example.habittrack.models.Location;
 import com.example.habittrack.models.Progress;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseUser;
@@ -43,16 +43,14 @@ import com.parse.SaveCallback;
 
 import com.example.habittrack.R;
 
-import org.apache.commons.lang3.SerializationUtils;
-
 import java.io.ByteArrayOutputStream;
-import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import static android.content.Context.ALARM_SERVICE;
 
@@ -66,11 +64,14 @@ public class CreateFragment extends Fragment {
     private EditText etCreateHabitName;
     private EditText etCreateHabitGoalQty;
     private EditText etCreateHabitUnits;
-    private Spinner spCreateTimeOfDay;
-    private Spinner spCreateTag;
     private TimePicker tpCreateReminderTime;
     private Button btnCreateHabit;
     private ImageButton ibIconButton;
+
+    private ChipGroup chipGroupTimeOfDay;
+    private ChipGroup chipGroupTag;
+    private ChipGroup chipGroupReminderType;
+    private ChipGroup chipGroupLocations;
 
     public CreateFragment() {};
 
@@ -92,24 +93,30 @@ public class CreateFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        etCreateHabitName = view.findViewById(R.id.etCreateHabitName);
-        etCreateHabitGoalQty = view.findViewById(R.id.etCreateHabitGoalQty);
-        etCreateHabitUnits = view.findViewById(R.id.etCreateHabitUnits);
-        spCreateTimeOfDay = view.findViewById(R.id.spCreateTimeOfDay);
-        spCreateTag = view.findViewById(R.id.spCreateTag);
-        tpCreateReminderTime = view.findViewById(R.id.tpCreateReminderTime);
-        btnCreateHabit = view.findViewById(R.id.btnCreateHabit);
-        ibIconButton = view.findViewById(R.id.ibIconButton);
+        etCreateHabitName = view.findViewById(R.id.etDetailHabitName);
+        etCreateHabitGoalQty = view.findViewById(R.id.etDetailHabitGoalQty);
+        etCreateHabitUnits = view.findViewById(R.id.etDetailHabitUnits);
+        tpCreateReminderTime = view.findViewById(R.id.tpDetailReminderTime);
+        btnCreateHabit = view.findViewById(R.id.btnDetailSaveHabit);
+        ibIconButton = view.findViewById(R.id.ibDetailIconButton);
 
-        ArrayAdapter<CharSequence> adapterTimeOfDay = ArrayAdapter.createFromResource(getActivity(),
-                R.array.create_time_of_day_array, android.R.layout.simple_spinner_item);
-        adapterTimeOfDay.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spCreateTimeOfDay.setAdapter(adapterTimeOfDay);
+        chipGroupTimeOfDay = view.findViewById(R.id.chipGroupTimeOfDay);
+        chipGroupTag = view.findViewById(R.id.chipGroupTag);
+        chipGroupReminderType = view.findViewById(R.id.chipGroupReminderType);
+        chipGroupLocations = view.findViewById(R.id.chipGroupLocations);
 
-        ArrayAdapter<CharSequence> adapterTag = ArrayAdapter.createFromResource(getActivity(),
-                R.array.create_tag_array, android.R.layout.simple_spinner_item);
-        adapterTag.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spCreateTag.setAdapter(adapterTag);
+        chipGroupReminderType.setOnCheckedChangeListener(new ChipGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(ChipGroup group, int checkedId) {
+                if (checkedId == R.id.chipTime) {
+                    tpCreateReminderTime.setVisibility(View.VISIBLE);
+                    chipGroupLocations.setVisibility(View.GONE);
+                } else if (checkedId == R.id.chipLocation) {
+                    tpCreateReminderTime.setVisibility(View.GONE);
+                    chipGroupLocations.setVisibility(View.VISIBLE);
+                }
+            }
+        });
 
         ibIconButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -169,20 +176,14 @@ public class CreateFragment extends Fragment {
                     return;
                 }
                 String habitUnits = etCreateHabitUnits.getText().toString();
-                String timeOfDay = spCreateTimeOfDay.getSelectedItem().toString();
-                String tag = spCreateTag.getSelectedItem().toString();
-                int reminderHour = tpCreateReminderTime.getHour();
-                int reminderMinute = tpCreateReminderTime.getMinute();
-                LocalTime nextReminderTime = LocalTime.of(reminderHour, reminderMinute);
-                LocalDate nextReminderDate;
-                if (nextReminderTime.isBefore(LocalTime.now())) {
-                    nextReminderDate = LocalDate.now().plusDays(1); // tomorrow
-                } else {
-                    nextReminderDate = LocalDate.now(); // today
-                }
-                LocalDateTime nextReminderDateTime = LocalDateTime.of(nextReminderDate, nextReminderTime);
-                Date reminderDateObject = Date.from(nextReminderDateTime.atZone(ZoneId.systemDefault()).toInstant());
-                long reminderTimeMillis = nextReminderDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+
+                int checkedChipTimeOfDayId = chipGroupTimeOfDay.getCheckedChipId();
+                Chip checkedChipTimeOfDay = view.findViewById(checkedChipTimeOfDayId);
+                String timeOfDay = checkedChipTimeOfDay.getText().toString();
+
+                int checkedChipTagId = chipGroupTag.getCheckedChipId();
+                Chip checkedChipTag = view.findViewById(checkedChipTagId);
+                String tag = checkedChipTag.getText().toString();
 
                 if (habitName.isEmpty() || habitUnits.isEmpty()) {
                     Toast.makeText(getContext(), "Please enter a value for all fields", Toast.LENGTH_SHORT).show();
@@ -202,8 +203,41 @@ public class CreateFragment extends Fragment {
                 habit.setUnit(habitUnits);
                 habit.setTimeOfDay(timeOfDay);
                 habit.setStreak(0);
-                habit.setRemindAtTime(reminderDateObject);
                 habit.setRequestCode(requestCode);
+
+                if (chipGroupReminderType.getCheckedChipId() == R.id.chipTime) {
+                    int reminderHour = tpCreateReminderTime.getHour();
+                    int reminderMinute = tpCreateReminderTime.getMinute();
+                    LocalTime nextReminderTime = LocalTime.of(reminderHour, reminderMinute);
+                    LocalDate nextReminderDate;
+                    if (nextReminderTime.isBefore(LocalTime.now())) {
+                        nextReminderDate = LocalDate.now().plusDays(1); // tomorrow
+                    } else {
+                        nextReminderDate = LocalDate.now(); // today
+                    }
+                    LocalDateTime nextReminderDateTime = LocalDateTime.of(nextReminderDate, nextReminderTime);
+                    Date reminderDateObject = Date.from(nextReminderDateTime.atZone(ZoneId.systemDefault()).toInstant());
+                    long reminderTimeMillis = nextReminderDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+                    habit.setRemindAtTime(reminderDateObject);
+
+                    AlarmManager alarmManager = (AlarmManager) context.getSystemService(ALARM_SERVICE);
+                    Intent intent = new Intent(context, AlarmReceiver.class);
+                    intent.setAction(AlarmReceiver.TIME_NOTIFY_TAG);
+                    intent.putExtra(Habit.KEY_NAME, habit.getName());
+                    intent.putExtra(Habit.KEY_REQUEST_CODE, habit.getRequestCode());
+                    intent.putExtra(Habit.KEY_REMIND_AT_TIME, reminderTimeMillis);
+
+                    PendingIntent pendingIntent = PendingIntent.getBroadcast(context, habit.getRequestCode(), intent, 0);
+                    alarmManager.set(AlarmManager.RTC_WAKEUP, reminderTimeMillis, pendingIntent);
+                } else if (chipGroupReminderType.getCheckedChipId() == R.id.chipLocation) {
+                    int checkedChipLocationId = chipGroupLocations.getCheckedChipId();
+                    Chip checkedChipLocation = view.findViewById(checkedChipLocationId);
+                    String locationName = checkedChipLocation.getText().toString();
+                    Location reminderLocation = Location.getLocationObjectByName(locationName);
+                    habit.setRemindAtLocation(reminderLocation);
+
+                    // TODO: set location alarm
+                }
 
                 progress.setUser(currentUser);
                 progress.setDate(Progress.getTodayDateString());
@@ -211,16 +245,6 @@ public class CreateFragment extends Fragment {
                 progress.setQtyGoal(habitGoalQty);
                 progress.setPctCompleted(0);
                 progress.setCompleted(false);
-
-                AlarmManager alarmManager = (AlarmManager) context.getSystemService(ALARM_SERVICE);
-                Intent intent = new Intent(context, AlarmReceiver.class);
-                intent.setAction(AlarmReceiver.TIME_NOTIFY_TAG);
-                intent.putExtra(Habit.KEY_NAME, habit.getName());
-                intent.putExtra(Habit.KEY_REQUEST_CODE, habit.getRequestCode());
-                intent.putExtra(Habit.KEY_REMIND_AT_TIME, reminderTimeMillis);
-
-                PendingIntent pendingIntent = PendingIntent.getBroadcast(context, habit.getRequestCode(), intent, 0);
-                alarmManager.set(AlarmManager.RTC_WAKEUP, reminderTimeMillis, pendingIntent);
 
                 habit.saveInBackground(new SaveCallback() {
                     @Override

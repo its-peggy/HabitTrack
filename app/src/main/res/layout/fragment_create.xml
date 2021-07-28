@@ -1,100 +1,311 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/fragment_create_relative_layout"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/fragment_habit_detail_relative_layout"
     android:transitionName="shared_element_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".fragments.CreateFragment">
 
     <EditText
-        android:id="@+id/etCreateHabitName"
+        android:id="@+id/etDetailHabitName"
         android:layout_width="248dp"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
-        android:layout_marginStart="30dp"
-        android:layout_marginTop="19dp"
-        android:layout_marginEnd="32dp"
-        android:layout_toEndOf="@+id/ibIconButton"
+        android:layout_marginStart="13dp"
+        android:layout_marginTop="40dp"
+        android:layout_marginEnd="16dp"
+        android:layout_toEndOf="@+id/ibDetailIconButton"
         android:ems="10"
         android:hint="Habit name"
-        android:inputType="textPersonName" />
+        android:inputType="textPersonName"
+        android:textSize="14sp" />
 
     <EditText
-        android:id="@+id/etCreateHabitGoalQty"
-        android:layout_width="116dp"
+        android:id="@+id/etDetailHabitGoalQty"
+        android:layout_width="149dp"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/ibIconButton"
+        android:layout_below="@+id/ibDetailIconButton"
         android:layout_alignParentStart="true"
-        android:layout_marginStart="30dp"
-        android:layout_marginTop="6dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
         android:ems="10"
         android:hint="Goal qty"
-        android:inputType="number" />
+        android:inputType="number"
+        android:textSize="14sp" />
 
     <EditText
-        android:id="@+id/etCreateHabitUnits"
+        android:id="@+id/etDetailHabitUnits"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/etCreateHabitName"
+        android:layout_below="@+id/ibDetailIconButton"
         android:layout_alignParentEnd="true"
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="30dp"
-        android:layout_toEndOf="@+id/etCreateHabitGoalQty"
+        android:layout_marginEnd="16dp"
+        android:layout_toEndOf="@+id/etDetailHabitGoalQty"
         android:ems="10"
         android:hint="Units"
-        android:inputType="textPersonName" />
-
-    <Spinner
-        android:id="@+id/spCreateTimeOfDay"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/etCreateHabitGoalQty"
-        android:layout_alignParentStart="true"
-        android:layout_marginStart="30dp"
-        android:layout_marginTop="4dp" />
-
-    <Spinner
-        android:id="@+id/spCreateTag"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/spCreateTimeOfDay"
-        android:layout_alignParentStart="true"
-        android:layout_marginStart="30dp"
-        android:layout_marginTop="4dp" />
-
-    <TimePicker
-        android:id="@+id/tpCreateReminderTime"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/spCreateTag"
-        android:layout_alignParentStart="true"
-        android:layout_marginStart="21dp"
-        android:layout_marginTop="4dp"
-        android:timePickerMode="spinner" />
+        android:inputType="textPersonName"
+        android:textSize="14sp" />
 
     <Button
-        android:id="@+id/btnCreateHabit"
+        android:id="@+id/btnDetailSaveHabit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/tpCreateReminderTime"
-        android:layout_alignParentBottom="false"
+        android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="4dp"
+        android:layout_marginBottom="31dp"
         android:text="Create habit" />
 
     <ImageButton
-        android:id="@+id/ibIconButton"
+        android:id="@+id/ibDetailIconButton"
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:layout_marginStart="39dp"
-        android:layout_marginTop="6dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="24dp"
         android:adjustViewBounds="true"
         android:scaleType="fitCenter"
         android:src="@drawable/ic_baseline_add_circle_24"
         tools:src="@drawable/ic_baseline_add_circle_24" />
+
+    <TimePicker
+        android:id="@+id/tpDetailReminderTime"
+        android:layout_width="232dp"
+        android:layout_height="153dp"
+        android:layout_below="@+id/chipGroupReminderType"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="4dp"
+        android:timePickerMode="spinner" />
+
+    <com.google.android.material.chip.ChipGroup
+        android:id="@+id/chipGroupTimeOfDay"
+        android:layout_width="292dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/etDetailHabitUnits"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="100dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        app:checkedChip="@id/chipAllDay"
+        app:singleSelection="true"
+        app:selectionRequired="true">
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipAllDay"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="All day"
+            android:textSize="12sp" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipMorning"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Morning"
+            android:textSize="12sp" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipNoon"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Noon"
+            android:textSize="12sp" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipAfternoon"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Afternoon"
+            android:textSize="12sp" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipEvening"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Evening"
+            android:textSize="12sp" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipNight"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Night"
+            android:textSize="12sp" />
+
+    </com.google.android.material.chip.ChipGroup>
+
+    <com.google.android.material.chip.ChipGroup
+        android:id="@+id/chipGroupTag"
+        android:layout_width="292dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/chipGroupTimeOfDay"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_centerHorizontal="false"
+        android:layout_marginStart="100dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        app:singleSelection="true"
+        app:checkedChip="@id/chipPersonal"
+        app:selectionRequired="true">
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipPersonal"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Personal"
+            android:textSize="12sp" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipExercise"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Exercise"
+            android:textSize="12sp" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipHealth"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Health"
+            android:textSize="12sp" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipEducation"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Education"
+            android:textSize="12sp" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipProductivity"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Productivity"
+            android:textSize="12sp" />
+
+    </com.google.android.material.chip.ChipGroup>
+
+    <com.google.android.material.chip.ChipGroup
+        android:id="@+id/chipGroupReminderType"
+        android:layout_width="292dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/chipGroupTag"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_centerHorizontal="false"
+        android:layout_marginStart="100dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="15dp"
+        app:singleSelection="true"
+        app:checkedChip="@id/chipTime"
+        app:selectionRequired="true">
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipTime"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Time"
+            android:textSize="12sp" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipLocation"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Location"
+            android:textSize="12sp" />
+    </com.google.android.material.chip.ChipGroup>
+
+    <com.google.android.material.chip.ChipGroup
+        android:id="@+id/chipGroupLocations"
+        android:layout_width="292dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/chipGroupReminderType"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_centerHorizontal="false"
+        android:layout_marginStart="100dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="15dp"
+        android:visibility="gone"
+        app:singleSelection="true"
+        app:checkedChip="@id/chipHome"
+        app:selectionRequired="true">
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipHome"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Home"
+            android:textSize="12sp" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipSchool"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="School"
+            android:textSize="12sp" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipWork"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Work"
+            android:textSize="12sp" />
+
+    </com.google.android.material.chip.ChipGroup>
+
+    <TextView
+        android:id="@+id/tvDetailTimeOfDay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/etDetailHabitGoalQty"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="45dp"
+        android:text="Time of day:" />
+
+    <TextView
+        android:id="@+id/tvDetailTag"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/chipGroupTimeOfDay"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="45dp"
+        android:text="Tag:" />
+
+    <TextView
+        android:id="@+id/tvDetailReminderType"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/chipGroupTag"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="false"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="31dp"
+        android:text="Reminder:" />
+
 </RelativeLayout>

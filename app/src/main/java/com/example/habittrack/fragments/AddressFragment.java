@@ -47,7 +47,7 @@ public class AddressFragment extends Fragment {
 
     private AsyncHttpClient asyncHttpClient;
     public static final String BASE_REQUEST_URL = "https://api.mapbox.com/geocoding/v5/mapbox.places/";
-    public static final String API_KEY = "";
+    public static final String API_KEY = "pk.eyJ1IjoicGVnZ3l5IiwiYSI6ImNrcmRveGU0ajNodmsyd3Bkajg2aTIxcTMifQ.ziW0gZm-bYQeDTCtXPE_dA";
 
     private EditText etAddressName;
     private EditText etAddress;
@@ -124,6 +124,12 @@ public class AddressFragment extends Fragment {
                             location.setUser(ParseUser.getCurrentUser());
                             location.setName(addressName);
                             location.setLocation(geoPoint);
+
+                            Location.nameToLocationObject.put(addressName, location);
+                            Location test = Location.nameToLocationObject.get(addressName);
+                            Log.d(TAG, "location name: " + test.getName());
+                            Log.d(TAG, "location ID: " + test.getObjectId());
+                            Log.d(TAG, "location coords: " + test.getLocation());
 
                             location.saveInBackground(new SaveCallback() {
                                 @Override

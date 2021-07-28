@@ -36,8 +36,11 @@ import com.example.habittrack.IconsAdapter;
 import com.example.habittrack.MainActivity;
 import com.example.habittrack.R;
 import com.example.habittrack.models.Habit;
+import com.example.habittrack.models.Location;
 import com.example.habittrack.models.Progress;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
 import com.parse.GetDataCallback;
 import com.parse.ParseException;
 import com.parse.ParseFile;
@@ -61,14 +64,17 @@ public class HabitDetailFragment extends Fragment {
 
     private Context context;
 
-    private EditText etEditHabitName;
-    private EditText etEditHabitGoalQty;
-    private EditText etEditHabitUnits;
-    private Spinner spEditTimeOfDay;
-    private Spinner spEditTag;
-    private TimePicker tpEditReminderTime;
-    private Button btnEditHabit;
+    private EditText etDetailHabitName;
+    private EditText etDetailHabitGoalQty;
+    private EditText etDetailHabitUnits;
+    private TimePicker tpDetailReminderTime;
+    private Button btnDetailSaveHabit;
     private ImageButton ibDetailIconButton;
+
+    private ChipGroup chipGroupTimeOfDay;
+    private ChipGroup chipGroupTag;
+    private ChipGroup chipGroupReminderType;
+    private ChipGroup chipGroupLocations;
 
     public HabitDetailFragment() { }
 
@@ -96,34 +102,64 @@ public class HabitDetailFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        etEditHabitName = view.findViewById(R.id.etEditHabitName);
-        etEditHabitGoalQty = view.findViewById(R.id.etEditHabitGoalQty);
-        etEditHabitUnits = view.findViewById(R.id.etEditHabitUnits);
-        spEditTimeOfDay = view.findViewById(R.id.spEditTimeOfDay);
-        spEditTag = view.findViewById(R.id.spEditTag);
-        tpEditReminderTime = view.findViewById(R.id.tpEditReminderTime);
-        btnEditHabit = view.findViewById(R.id.btnEditHabit);
+        etDetailHabitName = view.findViewById(R.id.etDetailHabitName);
+        etDetailHabitGoalQty = view.findViewById(R.id.etDetailHabitGoalQty);
+        etDetailHabitUnits = view.findViewById(R.id.etDetailHabitUnits);
+        tpDetailReminderTime = view.findViewById(R.id.tpDetailReminderTime);
+        btnDetailSaveHabit = view.findViewById(R.id.btnDetailSaveHabit);
         ibDetailIconButton = view.findViewById(R.id.ibDetailIconButton);
 
-        ArrayAdapter<CharSequence> adapterTimeOfDay = ArrayAdapter.createFromResource(getActivity(),
-                R.array.create_time_of_day_array, android.R.layout.simple_spinner_item);
-        adapterTimeOfDay.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spEditTimeOfDay.setAdapter(adapterTimeOfDay);
+        chipGroupTimeOfDay = view.findViewById(R.id.chipGroupTimeOfDay);
+        chipGroupTag = view.findViewById(R.id.chipGroupTag);
+        chipGroupReminderType = view.findViewById(R.id.chipGroupReminderType);
+        chipGroupLocations = view.findViewById(R.id.chipGroupLocations);
 
-        ArrayAdapter<CharSequence> adapterTag = ArrayAdapter.createFromResource(getActivity(),
-                R.array.create_tag_array, android.R.layout.simple_spinner_item);
-        adapterTag.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spEditTag.setAdapter(adapterTag);
+        etDetailHabitName.setText(habit.getName());
+        etDetailHabitGoalQty.setText(Integer.toString(habit.getQtyGoal()));
+        etDetailHabitUnits.setText(habit.getUnit());
 
-        etEditHabitName.setText(habit.getName());
-        etEditHabitGoalQty.setText(Integer.toString(habit.getQtyGoal()));
-        etEditHabitUnits.setText(habit.getUnit());
-        spEditTimeOfDay.setSelection(adapterTimeOfDay.getPosition(habit.getTimeOfDay()));
-        spEditTag.setSelection(adapterTag.getPosition(habit.getTag()));
+        String habitTimeOfDay = habit.getTimeOfDay();
+        for (int i = 0; i < chipGroupTimeOfDay.getChildCount(); i++){
+            Chip chip = (Chip) chipGroupTimeOfDay.getChildAt(i);
+            String chipText = chip.getText().toString();
+            if (chipText.equals(habitTimeOfDay)){
+                chipGroupTimeOfDay.check(chip.getId());
+            }
+        }
 
-        LocalDateTime localDateTime = habit.getRemindAtTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-        tpEditReminderTime.setHour(localDateTime.getHour());
-        tpEditReminderTime.setMinute(localDateTime.getMinute());
+        String habitTag = habit.getTag();
+        for (int i = 0; i < chipGroupTag.getChildCount(); i++){
+            Chip chip = (Chip) chipGroupTag.getChildAt(i);
+            String chipText = chip.getText().toString();
+            if (chipText.equals(habitTag)){
+                chipGroupTag.check(chip.getId());
+            }
+        }
+
+        boolean timeReminder = (habit.getRemindAtTime() != null);
+        if (timeReminder) {
+            chipGroupReminderType.check(R.id.chipTime);
+            tpDetailReminderTime.setVisibility(View.VISIBLE);
+            chipGroupLocations.setVisibility(View.GONE);
+            LocalDateTime localDateTime = habit.getRemindAtTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+            tpDetailReminderTime.setHour(localDateTime.getHour());
+            tpDetailReminderTime.setMinute(localDateTime.getMinute());
+        } else {
+            chipGroupReminderType.check(R.id.chipLocation);
+            tpDetailReminderTime.setVisibility(View.GONE);
+            chipGroupLocations.setVisibility(View.VISIBLE);
+//            Location location = habit.getRemindAtLocation();
+//            Log.d(TAG, "location is null: " + (location == null));
+//            Log.d(TAG, "location location: " + location.getLocation());
+            String reminderLocationName = habit.getRemindAtLocation().getName();
+            for (int i = 0; i < chipGroupLocations.getChildCount(); i++){
+                Chip chip = (Chip) chipGroupLocations.getChildAt(i);
+                String chipText = chip.getText().toString();
+                if (chipText.equals(reminderLocationName)){
+                    chipGroupLocations.check(chip.getId());
+                }
+            }
+        }
 
         ParseFile icon = habit.getIcon();
         icon.getDataInBackground(new GetDataCallback() {
@@ -173,7 +209,7 @@ public class HabitDetailFragment extends Fragment {
             }
         });
 
-        btnEditHabit.setOnClickListener(new View.OnClickListener() {
+        btnDetailSaveHabit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Drawable drawableIcon = ibDetailIconButton.getDrawable();
@@ -183,37 +219,17 @@ public class HabitDetailFragment extends Fragment {
                 byte[] iconByteArray = stream.toByteArray();
                 ParseFile icon = new ParseFile("icon.png", iconByteArray);
 
-                String habitName = etEditHabitName.getText().toString();
-                int habitGoalQty = Integer.parseInt(etEditHabitGoalQty.getText().toString());
-                String habitUnits = etEditHabitUnits.getText().toString();
-                String timeOfDay = spEditTimeOfDay.getSelectedItem().toString();
-                String tag = spEditTag.getSelectedItem().toString();
+                String habitName = etDetailHabitName.getText().toString();
+                int habitGoalQty = Integer.parseInt(etDetailHabitGoalQty.getText().toString());
+                String habitUnits = etDetailHabitUnits.getText().toString();
 
-                LocalDateTime currentReminderDateTime = habit.getRemindAtTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
-                LocalTime currentReminderTime = currentReminderDateTime.toLocalTime();
-                int reminderHour = tpEditReminderTime.getHour();
-                int reminderMinute = tpEditReminderTime.getMinute();
-                LocalTime nextReminderTime = LocalTime.of(reminderHour, reminderMinute);
-                LocalDate nextReminderDate;
-                if (nextReminderTime.isBefore(LocalTime.now())) {
-                    nextReminderDate = LocalDate.now().plusDays(1); // tomorrow
-                } else {
-                    nextReminderDate = LocalDate.now(); // today
-                }
-                LocalDateTime nextReminderDateTime = LocalDateTime.of(nextReminderDate, nextReminderTime);
-                Date reminderDateObject = Date.from(nextReminderDateTime.atZone(ZoneId.systemDefault()).toInstant());
+                int checkedChipTimeOfDayId = chipGroupTimeOfDay.getCheckedChipId();
+                Chip checkedChipTimeOfDay = view.findViewById(checkedChipTimeOfDayId);
+                String timeOfDay = checkedChipTimeOfDay.getText().toString();
 
-                if (!nextReminderTime.equals(currentReminderTime)) {
-                    AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-                    Intent intent = new Intent(context, AlarmReceiver.class);
-                    intent.setAction(AlarmReceiver.TIME_NOTIFY_TAG);
-                    PendingIntent pendingIntent = PendingIntent.getBroadcast(context, habit.getRequestCode(), intent, 0);
-                    alarmManager.cancel(pendingIntent);
-
-                    PendingIntent newPendingIntent = PendingIntent.getBroadcast(context, habit.getRequestCode(), intent, 0);
-                    long reminderMillis = nextReminderDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-                    alarmManager.set(AlarmManager.RTC_WAKEUP, reminderMillis, newPendingIntent);
-                }
+                int checkedChipTagId = chipGroupTag.getCheckedChipId();
+                Chip checkedChipTag = view.findViewById(checkedChipTagId);
+                String tag = checkedChipTag.getText().toString();
 
                 habit.setName(habitName);
                 habit.setIcon(icon);
@@ -221,7 +237,44 @@ public class HabitDetailFragment extends Fragment {
                 habit.setQtyGoal(habitGoalQty);
                 habit.setUnit(habitUnits);
                 habit.setTimeOfDay(timeOfDay);
-                habit.setRemindAtTime(reminderDateObject);
+
+                if (chipGroupReminderType.getCheckedChipId() == R.id.chipTime) {
+                    LocalDateTime currentReminderDateTime = habit.getRemindAtTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+                    LocalTime currentReminderTime = currentReminderDateTime.toLocalTime();
+                    int reminderHour = tpDetailReminderTime.getHour();
+                    int reminderMinute = tpDetailReminderTime.getMinute();
+                    LocalTime nextReminderTime = LocalTime.of(reminderHour, reminderMinute);
+                    LocalDate nextReminderDate;
+                    if (nextReminderTime.isBefore(LocalTime.now())) {
+                        nextReminderDate = LocalDate.now().plusDays(1); // tomorrow
+                    } else {
+                        nextReminderDate = LocalDate.now(); // today
+                    }
+                    LocalDateTime nextReminderDateTime = LocalDateTime.of(nextReminderDate, nextReminderTime);
+                    Date reminderDateObject = Date.from(nextReminderDateTime.atZone(ZoneId.systemDefault()).toInstant());
+                    habit.setRemindAtTime(reminderDateObject);
+
+                    if (!nextReminderTime.equals(currentReminderTime)) {
+                        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+                        Intent intent = new Intent(context, AlarmReceiver.class);
+                        intent.setAction(AlarmReceiver.TIME_NOTIFY_TAG);
+                        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, habit.getRequestCode(), intent, 0);
+                        alarmManager.cancel(pendingIntent);
+
+                        PendingIntent newPendingIntent = PendingIntent.getBroadcast(context, habit.getRequestCode(), intent, 0);
+                        long reminderMillis = nextReminderDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+                        alarmManager.set(AlarmManager.RTC_WAKEUP, reminderMillis, newPendingIntent);
+                    }
+                } else {
+                    int checkedChipLocationId = chipGroupLocations.getCheckedChipId();
+                    Chip checkedChipLocation = view.findViewById(checkedChipLocationId);
+                    String locationName = checkedChipLocation.getText().toString();
+                    Location reminderLocation = Location.nameToLocationObject.get(locationName);
+                    habit.setRemindAtLocation(reminderLocation);
+
+                    // TODO: update geofence?
+                }
+
                 progress.setQtyGoal(habitGoalQty);
                 if (progress.getQtyCompleted() >= habitGoalQty) {
                     progress.setQtyCompleted(habitGoalQty);
