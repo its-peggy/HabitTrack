@@ -29,37 +29,47 @@ App that lets you create and categorize daily habits (e.g. drink 8 cups of water
 
 **Required Must-have Stories**
 
-* Create new habit
-* Update progress on today's habit
-* Filter/sort habits by category, time of day, etc.
-* Login
-* Register a new account
-* View habit progress of past week and month
-* Edit and delete habits
+[x] Login
+[x] Register a new account
+[x] View list of all current habits
+[x] Filter/sort habits by category, time of day, etc.
+[x] Create new habit
+[x] Edit habits
+[x] Update progress on today's habit
+[x] View overall habit progress of past month
 
 **Optional Nice-to-have Stories**
 
-* Calendar views of habit progress with color gradients, clickable days, etc. 
-* Can tap on a habit to view a detail screen - description, progress on this one habit, insights like longest streak, % of days completed, etc.
-* Track yesterday's (or custom day) habits (e.g. if user forgot to log something)
-* Custom repeating habits (e.g. not every day, but every other day or every MWF, etc.)
-* Notifications/reminders (?)
+[x] Time-based reminders
+[x] Location-based reminders (partially complete as of July 29 morning)
+[x] Calendar view of habit progress with color gradients indicating progress
+[x] Can tap on a habit to view a detail screen 
+[ ] View habit insights - current streak, longest streak, % of days completed, etc.
+[ ] Custom repeating habits (e.g. not every day, but every other day or every MWF, etc.)
+[ ] Support for non-quantity-based habits (e.g. "skip dessert", "pack lunch for work")
+[ ] Delete habits
 
 ### 2. Screen Archetypes
 
+* Start/Welcome screen
+    * User can choose to login or register 
 * Login screen
     * User can login
 * Registration screen
     * User can create a new account
 * Habit list screen
     * View today's habits and sort/filter
-    * Update progress on today's 
+    * Update progress on today's habits
 * Create habit screen
     * User can create a new habit
-* Edit habit screen
-    * User can edit or delete an existing habit
+* Detail/Edit habit screen
+    * User can view habit details and/or edit habit
 * Progress view screen
     * View weekly/monthly progress 
+* Profile screen
+    * User can log out
+* Address management screen
+    * User can enter addresses (Home, Work, etc.)
 
 ### 3. Navigation
 
@@ -67,22 +77,30 @@ App that lets you create and categorize daily habits (e.g. drink 8 cups of water
 
 * My habits
 * Progress
+* Profile
 
 **Flow Navigation** (Screen to Screen)
 
+* Start screen
+    * Login screen
+    * Registration screen
 * Login screen
     * Habit list screen
 * Registration screen
     * Habit list screen
 * Habit list screen
     * Create habit screen
-    * Edit habit screen
+    * Detail/Edit habit screen
 * Create habit screen
     * Habit list screen
 * Edit habit screen
     * Habit list screen
 * Progress view screen
     * None
+* Profile screen
+    * Address management screen
+* Address management screen
+    * Profile screen
 
 ## Wireframes
 [App wireframes (Imgur)](https://imgur.com/a/f90ubTL)
@@ -99,35 +117,39 @@ App that lets you create and categorize daily habits (e.g. drink 8 cups of water
 
 | Property         | Type                        | Description                                                                     |
 |------------------|-----------------------------|---------------------------------------------------------------------------------|
+| user             | pointer to User             | user who created habit                                                          |
 | name             | String                      | name of habit                                                                   |
-| author           | pointer to User             | user who created habit                                                          |
-| icon             | File (or String?)           | icon (from fixed set of choices)                                                |
+| icon             | File                        | icon (from fixed set of choices)                                                |
 | createdAt        | DateTime                    | day of creation                                                                 |
 | tag              | String                      | tag (from fixed set of choices)                                                 |
 | qtyGoal          | Number                      | goal quantity (e.g. 50)                                                         |
 | unit             | String                      | units of habit (e.g. minutes)                                                   |
 | timeOfDay        | String                      | time of day of habit (morning/noon/afternoon/evening)                           |
+| streak           | Number                      | current habit streak                                                            |
+| longestStreak    | Number                      | longest habit streak                                                            |
 | remindAtTime     | DateTime / null             | daily reminder time                                                             |
 | remindAtLocation | pointer to Location / null  | daily reminder location. note only one of remindAtTime/Location can be non-null |
-| progress         | pointer to associated class | pointer to class of entries of each day's progress on this habit                |
-| (?) repeatOnDays | Array                       | which days to repeat this habit on (e.g. [F,T,F,T,T,F,F] = MWR)                 |
+| progress         | pointer to Profress         | pointer to entry of current day's progress on this habit                        |
 
 #### Location
 
-| Property  | Type   | Description    |
-|-----------|--------|----------------|
-| name      | String | e.g. "Work"    |
-| latitude  | String | e.g. "40.0 N"  |
-| longitude | String | e.g. "-75.0 W" |
+| Property  | Type     | Description          |
+|-----------|----------|----------------------|
+| user      | User     | user                 |
+| name      | String   | e.g. "Work"          |
+| location  | GeoPoint | location of interest |
 
-#### Habit1 (as many of these as there are habits)
+#### Progress
 
-| Property     | Type     | Description                |
-|--------------|----------|----------------------------|
-| date         | DateTime | a specific date            |
-| qtyCompleted | Number   | completed amount           |
-| qtyGoal      | Number   | goal amount                |
-| pctCompleted | Number   | percentage of goal reached |
+| Property     | Type     | Description                                 |
+|--------------|----------|---------------------------------------------|
+| user         | User     | user                                        |
+| date         | String   | date this entry corresponds to (yyyy-MM-dd) |
+| qtyCompleted | Number   | completed amount                            |
+| qtyGoal      | Number   | goal amount                                 |
+| pctCompleted | Number   | percentage of goal reached                  |
+| completed    | Boolean  | whether qtyCompleted == qtyGoal             |
+| habit        | Habit    | Habit that this progress corresponds to     |
 
 ### Networking
 
@@ -136,13 +158,16 @@ App that lets you create and categorize daily habits (e.g. drink 8 cups of water
 * Habit feed screen
    * GET: show habits
    * PUT: input progress on habit
-   * DELETE: delete habit (e.g. by swiping?)
-* Detail/Edit/Create habit screen
+   * DELETE: delete habit 
+* Create habit
+   * POST: create new habit
+* Detail/Edit habit screen
    * GET: show details
    * PUT: edit details
-   * POST: create new habit
 * Progress screen
    * GET: show progress for each day on a selected habit
+* Address management screen
+   * POST: create new addresses/locations of interest
 
 - [Create basic snippets for each Parse network request]
 - [OPTIONAL: List endpoints if using existing API such as Yelp]
@@ -151,3 +176,4 @@ App that lets you create and categorize daily habits (e.g. drink 8 cups of water
 
 * Added page and section headers to home RecyclerView by implementing multiple View types, dynamic getItemCount, etc.
 * Faciliated querying with pointers, HashMap, and reduced querying with custom comparators. 
+* BroadcastReceivers and AlarmManager to create time and location reminders
