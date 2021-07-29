@@ -29,25 +29,25 @@ App that lets you create and categorize daily habits (e.g. drink 8 cups of water
 
 **Required Must-have Stories**
 
-[x] Login
-[x] Register a new account
-[x] View list of all current habits
-[x] Filter/sort habits by category, time of day, etc.
-[x] Create new habit
-[x] Edit habits
-[x] Update progress on today's habit
-[x] View overall habit progress of past month
+- [x] Login
+- [x] Register a new account
+- [x] View list of all current habits
+- [x] Filter/sort habits by category, time of day, etc.
+- [x] Create new habit
+- [x] Edit habits
+- [x] Update progress on today's habit
+- [x] View overall habit progress of past month
 
 **Optional Nice-to-have Stories**
 
-[x] Time-based reminders
-[x] Location-based reminders (partially complete as of July 29 morning)
-[x] Calendar view of habit progress with color gradients indicating progress
-[x] Can tap on a habit to view a detail screen 
-[ ] View habit insights - current streak, longest streak, % of days completed, etc.
-[ ] Custom repeating habits (e.g. not every day, but every other day or every MWF, etc.)
-[ ] Support for non-quantity-based habits (e.g. "skip dessert", "pack lunch for work")
-[ ] Delete habits
+- [x] Time-based reminders
+- [x] Location-based reminders (partially complete as of July 29 morning)
+- [x] Calendar view of habit progress with color gradients indicating progress
+- [x] Can tap on a habit to view a detail screen 
+- [ ] View habit insights - current streak, longest streak, % of days completed, etc.
+- [ ] Custom repeating habits (e.g. not every day, but every other day or every MWF, etc.)
+- [ ] Support for non-quantity-based habits (e.g. "skip dessert", "pack lunch for work")
+- [ ] Delete habits
 
 ### 2. Screen Archetypes
 
