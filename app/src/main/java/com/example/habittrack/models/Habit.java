@@ -25,6 +25,7 @@ public class Habit extends ParseObject implements Serializable {
     public static final String KEY_TIME_OF_DAY = "timeOfDay";
     public static final String KEY_TIME_OF_DAY_INDEX = "timeOfDayIndex";
     public static final String KEY_STREAK = "streak";
+    public static final String KEY_LONGEST_STREAK = "longestStreak";
     public static final String KEY_REMIND_AT_TIME = "remindAtTime";
     public static final String KEY_REMIND_AT_LOCATION = "remindAtLocation";
     public static final String KEY_REQUEST_CODE = "requestCode";
@@ -113,6 +114,14 @@ public class Habit extends ParseObject implements Serializable {
 
     public void setStreak(int streak) {
         put(KEY_STREAK, streak);
+    }
+
+    public int getLongestStreak() {
+        return getInt(KEY_LONGEST_STREAK);
+    }
+
+    public void setLongestStreak(int longestStreak) {
+        put(KEY_LONGEST_STREAK, longestStreak);
     }
 
     public Date getRemindAtTime() {

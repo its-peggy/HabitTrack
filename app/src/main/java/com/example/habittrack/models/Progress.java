@@ -6,6 +6,8 @@ import com.parse.ParseUser;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
 
 @ParseClassName("Progress")
 public class Progress extends ParseObject {
@@ -17,6 +19,9 @@ public class Progress extends ParseObject {
     public static final String KEY_QTY_GOAL = "qtyGoal";
     public static final String KEY_PCT_COMPLETED = "pctCompleted";
     public static final String KEY_COMPLETED = "completed";
+
+    public static Map<String, Double> dateToTotalProgressPct = new HashMap<>();
+    public static Map<String, Long> dateToProgressCount = new HashMap<>();
 
     public ParseUser getUser() { return getParseUser(KEY_USER); }
 

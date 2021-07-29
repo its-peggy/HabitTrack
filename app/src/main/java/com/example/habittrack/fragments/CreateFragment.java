@@ -203,6 +203,7 @@ public class CreateFragment extends Fragment {
                 habit.setUnit(habitUnits);
                 habit.setTimeOfDay(timeOfDay);
                 habit.setStreak(0);
+                habit.setLongestStreak(0);
                 habit.setRequestCode(requestCode);
 
                 if (chipGroupReminderType.getCheckedChipId() == R.id.chipTime) {

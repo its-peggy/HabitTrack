@@ -7,4 +7,15 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="light_lilac">#F0E5FF</color>
+    <color name="very_light_grey">#EAEAEA</color>
+
+    <color name="progress0">#f3e79b</color>
+    <color name="progress1">#fac484</color>
+    <color name="progress2">#f8a07e</color>
+    <color name="progress3">#eb7f86</color>
+    <color name="progress4">#ce6693</color>
+    <color name="progress5">#a059a0</color>
+    <color name="progress6">#5c53a5</color>
+
 </resources>

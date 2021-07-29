@@ -14,7 +14,7 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_gravity="bottom|center_horizontal"
-        android:layout_marginBottom="4dp"
+        android:layout_marginBottom="300dp"
         android:text="Sign out" />
 
     <Button
@@ -25,7 +25,7 @@
         android:layout_alignParentStart="false"
         android:layout_alignParentTop="false"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="240dp"
+        android:layout_marginBottom="80dp"
         android:text="Add addresses" />
 
 </RelativeLayout>

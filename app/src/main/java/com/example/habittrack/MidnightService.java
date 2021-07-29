@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 
+import androidx.annotation.Nullable;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.example.habittrack.models.Habit;
@@ -39,6 +40,17 @@ public class MidnightService extends Service {
         queryDatabase();
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
+
     private void queryDatabase() {
         ParseQuery<Habit> queryHabits = ParseQuery.getQuery(Habit.class);
         queryHabits.include(Habit.KEY_USER);
@@ -59,16 +71,24 @@ public class MidnightService extends Service {
 
                     newProgress.setUser(habit.getUser());
                     newProgress.setHabit(habit);
-                    newProgress.setDate(tomorrowDate());
+                    newProgress.setDate(todayDate());
                     newProgress.setQtyCompleted(0);
                     newProgress.setQtyGoal(habit.getQtyGoal());
                     newProgress.setPctCompleted(0);
                     newProgress.setCompleted(false);
 
                     habit.setTodayProgress(newProgress);
+
                     if (oldProgress.getCompleted()) {
                         habit.setStreak(habit.getStreak()+1);
+                    } else {
+                        habit.setStreak(0);
                     }
+
+                    if (habit.getStreak() > habit.getLongestStreak()) {
+                        habit.setLongestStreak(habit.getStreak());
+                    }
+
                     if (habit.getRemindAtTime() != null) {
                         Date currentReminder = habit.getRemindAtTime();
                         LocalDateTime currentReminderLDT = convertToLocalDateTime(currentReminder);
@@ -90,17 +110,18 @@ public class MidnightService extends Service {
                         HabitWrapper hw = new HabitWrapper(queriedHabits);
                         intent.putExtra("queriedHabits", hw);
                         LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+                        stopSelf();
                     }
                 });
             }
         });
     }
 
-    private String tomorrowDate() {
-        LocalDate tomorrow = LocalDate.now().plusDays(1);
+    private String todayDate() {
+        LocalDate today = LocalDate.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        String tomorrowFormatted = formatter.format(tomorrow);
-        return tomorrowFormatted;
+        String todayFormatted = formatter.format(today);
+        return todayFormatted;
     }
 
     public LocalDateTime convertToLocalDateTime(Date date) {
@@ -111,9 +132,4 @@ public class MidnightService extends Service {
         return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
     }
 
-    @Override
-    public IBinder onBind(Intent intent) {
-        // TODO: what goes here?
-        throw new UnsupportedOperationException("Not yet implemented");
-    }
 }

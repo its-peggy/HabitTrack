@@ -78,19 +78,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void createNotificationChannel() {
-        // Create the NotificationChannel, but only on API 26+ because
-        // the NotificationChannel class is new and not in the support library
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            String name = "channel_0";
-            String description = "this is channel 0";
-            int importance = NotificationManager.IMPORTANCE_DEFAULT;
-            NotificationChannel channel = new NotificationChannel("asdf", name, importance);
-            channel.setDescription(description);
-            // Register the channel with the system; you can't change the importance
-            // or other notification behaviors after this
-            NotificationManager notificationManager = getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannel(channel);
-        }
+        String name = "channel_0";
+        String description = "this is channel 0";
+        int importance = NotificationManager.IMPORTANCE_DEFAULT;
+        NotificationChannel channel = new NotificationChannel("asdf", name, importance);
+        channel.setDescription(description);
+        // Register the channel with the system
+        NotificationManager notificationManager = getSystemService(NotificationManager.class);
+        notificationManager.createNotificationChannel(channel);
     }
 
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
@@ -98,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             HabitWrapper hw = (HabitWrapper) intent.getSerializableExtra("queriedHabits");
             List<Habit> queriedHabits = hw.getHabits();
-            habitList = queriedHabits;
+            setHabitList(queriedHabits);
         }
     };
 
