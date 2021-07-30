@@ -57,5 +57,6 @@ dependencies {
     implementation 'com.github.kizitonwose:CalendarView:1.0.4'
     implementation 'com.codepath.libraries:android-oauth-handler:2.2.0'
     implementation 'com.codepath.libraries:asynchttpclient:2.0.0'
+    implementation 'com.google.android.gms:play-services-location:17.0.0'
     // implementation "com.mapbox.search:mapbox-search-android-ui:1.0.0-beta.16"
 }

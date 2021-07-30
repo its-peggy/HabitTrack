@@ -2,6 +2,7 @@ package com.example.habittrack;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -11,6 +12,8 @@ import com.example.habittrack.fragments.HomeFragment;
 import com.example.habittrack.fragments.ProfileFragment;
 import com.example.habittrack.fragments.ProgressFragment;
 
+import android.Manifest;
+import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -19,6 +22,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -26,8 +30,21 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.example.habittrack.models.Habit;
+import com.example.habittrack.models.Location;
 import com.example.habittrack.models.Progress;
+import com.google.android.gms.location.Geofence;
+import com.google.android.gms.location.GeofencingClient;
+import com.google.android.gms.location.GeofencingRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.parse.FindCallback;
+import com.parse.ParseException;
+import com.parse.ParseQuery;
+import com.parse.ParseUser;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -41,13 +58,20 @@ public class MainActivity extends AppCompatActivity {
     public static final String TAG = "MainActivity";
     final FragmentManager fragmentManager = getSupportFragmentManager();
     private BottomNavigationView bottomNavigationView;
+    private GeofencingClient geofencingClient;
 
+    Activity activity;
+
+    List<Geofence> geofenceList = new ArrayList<>();
     List<Habit> habitList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        activity = this;
+
+        geofencingClient = LocationServices.getGeofencingClient(this);
 
         bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottomNavigation);
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -72,9 +96,57 @@ public class MainActivity extends AppCompatActivity {
         });
         bottomNavigationView.setSelectedItemId(R.id.action_home);
 
+        queryAvailableLocations();
+
         createNotificationChannel();
 
         setMidnightAlarm();
+
+    }
+
+    private Boolean permissionsGranted() {
+        return (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)
+                && (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull @NotNull String[] permissions, @NonNull @NotNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == 123) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED
+                    && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+                Log.d(TAG, "location permissions granted");
+                addGeofenceForLocation(Location.getLocationObjectByName("Home"));
+                addGeofences();
+            } else {
+                Log.e(TAG, "user did not grant location permissions");
+                Toast.makeText(this, "user did not grant location permissions", Toast.LENGTH_LONG).show();
+                return;
+            }
+        }
+    }
+
+    private void queryAvailableLocations() {
+        ParseQuery<Location> queryLocations = ParseQuery.getQuery(Location.class);
+        queryLocations.whereEqualTo(Progress.KEY_USER, ParseUser.getCurrentUser());
+        queryLocations.include(Progress.KEY_USER);
+        queryLocations.findInBackground(new FindCallback<Location>() {
+            @Override
+            public void done(List<Location> locationList, ParseException e) {
+                for (Location location : locationList) {
+                    Location.nameToLocationObject.put(location.getName(), location);
+                }
+                if (!permissionsGranted()) {
+                    ActivityCompat.requestPermissions(activity,
+                            new String[] {Manifest.permission.ACCESS_FINE_LOCATION,
+                                    Manifest.permission.ACCESS_BACKGROUND_LOCATION},
+                            123);
+                } else {
+                    addGeofenceForLocation(Location.getLocationObjectByName("Home"));
+                    addGeofences();
+                }
+            }
+        });
     }
 
     private void createNotificationChannel() {
@@ -83,7 +155,6 @@ public class MainActivity extends AppCompatActivity {
         int importance = NotificationManager.IMPORTANCE_DEFAULT;
         NotificationChannel channel = new NotificationChannel("asdf", name, importance);
         channel.setDescription(description);
-        // Register the channel with the system
         NotificationManager notificationManager = getSystemService(NotificationManager.class);
         notificationManager.createNotificationChannel(channel);
     }
@@ -105,8 +176,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onPause() {
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver);
         super.onPause();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(broadcastReceiver);
     }
 
     private void setMidnightAlarm() {
@@ -123,6 +194,49 @@ public class MainActivity extends AppCompatActivity {
         return midnightTomorrow.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
     }
 
+    private void addGeofenceForLocation(Location location) {
+        geofenceList.add(new Geofence.Builder()
+                .setRequestId(location.getName())
+                .setCircularRegion(
+                        location.getLocation().getLatitude(),
+                        location.getLocation().getLongitude(),
+                        150)
+                .setExpirationDuration(1000 * 60 * 60 * 24)
+                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_DWELL)
+                .setLoiteringDelay(1000 * 30)
+                .build());
+    }
+
+    private GeofencingRequest getGeofencingRequest() {
+        GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
+        builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER);
+        builder.addGeofences(geofenceList);
+        return builder.build();
+    }
+
+    private void addGeofences() {
+        GeofencingRequest geofencingRequest = getGeofencingRequest();
+        Intent intent = new Intent(this, GeofenceReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, -10, intent, 0);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Log.e(TAG, "ACCESS_FINE_LOCATION permission not granted");
+            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, 123);
+        }
+        geofencingClient.addGeofences(geofencingRequest, pendingIntent)
+                .addOnSuccessListener(this, new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "geofences added successfully");
+                    }
+                })
+                .addOnFailureListener(this, new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.e(TAG, "failure to add geofences", e);
+                    }
+                });
+    }
+
     public List<Habit> getHabitList() {
         return habitList;
     }
@@ -130,4 +244,5 @@ public class MainActivity extends AppCompatActivity {
     public void setHabitList(List<Habit> habits) {
         habitList = habits;
     }
+
 }

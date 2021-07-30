@@ -387,7 +387,6 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     }
 
     protected void queryDatabase(int sortType) {
-        Log.d(TAG, "querying database");
         ParseQuery<Habit> queryHabits = ParseQuery.getQuery(Habit.class);
         queryHabits.include(Habit.KEY_USER);
         queryHabits.include(Habit.KEY_TODAY_PROGRESS);
@@ -449,7 +448,6 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             spSort.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    Log.d(TAG, "spinner onItemSelected called");
                     LAST_SORT_SELECTED = position; // 0-3, corresponds to sort type
                     if (habits.isEmpty()) {
                         queryDatabase(LAST_SORT_SELECTED);

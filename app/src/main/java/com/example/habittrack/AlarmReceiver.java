@@ -39,8 +39,8 @@ public class AlarmReceiver extends BroadcastReceiver {
             int requestCode = intent.getIntExtra(Habit.KEY_REQUEST_CODE, -1);
             long reminderTimeMillis = intent.getLongExtra(Habit.KEY_REMIND_AT_TIME, -1);
             String habitName = intent.getStringExtra(Habit.KEY_NAME);
-            setNextHabitReminder(context, requestCode, reminderTimeMillis);
             showNotification(context, habitName);
+            setNextHabitReminder(context, requestCode, reminderTimeMillis);
         }
     }
 

@@ -231,13 +231,19 @@ public class CreateFragment extends Fragment {
                     PendingIntent pendingIntent = PendingIntent.getBroadcast(context, habit.getRequestCode(), intent, 0);
                     alarmManager.set(AlarmManager.RTC_WAKEUP, reminderTimeMillis, pendingIntent);
                 } else if (chipGroupReminderType.getCheckedChipId() == R.id.chipLocation) {
+
+                    for (Map.Entry<String, Location> entry : Location.nameToLocationObject.entrySet()) {
+                        String key = entry.getKey();
+                        Location value = entry.getValue();
+                        Log.d(TAG, key + "-->" + value.getObjectId() + " " + value.getName());
+                    }
+
+
                     int checkedChipLocationId = chipGroupLocations.getCheckedChipId();
                     Chip checkedChipLocation = view.findViewById(checkedChipLocationId);
                     String locationName = checkedChipLocation.getText().toString();
                     Location reminderLocation = Location.getLocationObjectByName(locationName);
                     habit.setRemindAtLocation(reminderLocation);
-
-                    // TODO: set location alarm
                 }
 
                 progress.setUser(currentUser);
