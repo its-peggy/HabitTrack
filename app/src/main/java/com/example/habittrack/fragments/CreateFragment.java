@@ -105,6 +105,16 @@ public class CreateFragment extends Fragment {
         chipGroupReminderType = view.findViewById(R.id.chipGroupReminderType);
         chipGroupLocations = view.findViewById(R.id.chipGroupLocations);
 
+        for (int i = 0; i < chipGroupLocations.getChildCount(); i++) {
+            Chip chip = (Chip) chipGroupLocations.getChildAt(i);
+            String locationName = chip.getText().toString();
+            if (!Location.allLocationNames.contains(locationName)) {
+                chip.setVisibility(View.GONE);
+//                chip.setCheckable(false);
+//                chip.setChipBackgroundColorResource(R.color.medium_grey);
+            }
+        }
+
         chipGroupReminderType.setOnCheckedChangeListener(new ChipGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(ChipGroup group, int checkedId) {
@@ -231,14 +241,6 @@ public class CreateFragment extends Fragment {
                     PendingIntent pendingIntent = PendingIntent.getBroadcast(context, habit.getRequestCode(), intent, 0);
                     alarmManager.set(AlarmManager.RTC_WAKEUP, reminderTimeMillis, pendingIntent);
                 } else if (chipGroupReminderType.getCheckedChipId() == R.id.chipLocation) {
-
-                    for (Map.Entry<String, Location> entry : Location.nameToLocationObject.entrySet()) {
-                        String key = entry.getKey();
-                        Location value = entry.getValue();
-                        Log.d(TAG, key + "-->" + value.getObjectId() + " " + value.getName());
-                    }
-
-
                     int checkedChipLocationId = chipGroupLocations.getCheckedChipId();
                     Chip checkedChipLocation = view.findViewById(checkedChipLocationId);
                     String locationName = checkedChipLocation.getText().toString();

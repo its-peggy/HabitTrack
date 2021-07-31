@@ -390,6 +390,7 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         ParseQuery<Habit> queryHabits = ParseQuery.getQuery(Habit.class);
         queryHabits.include(Habit.KEY_USER);
         queryHabits.include(Habit.KEY_TODAY_PROGRESS);
+        queryHabits.include(Habit.KEY_REMIND_AT_LOCATION);
         if (sortType != 0) {
             Log.e(TAG, "upon Parse query, sortType not default \"createdAt\" sort");
             return;

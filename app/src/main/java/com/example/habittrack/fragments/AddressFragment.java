@@ -126,10 +126,7 @@ public class AddressFragment extends Fragment {
                             location.setLocation(geoPoint);
 
                             Location.nameToLocationObject.put(addressName, location);
-                            Location test = Location.nameToLocationObject.get(addressName);
-                            Log.d(TAG, "location name: " + test.getName());
-                            Log.d(TAG, "location ID: " + test.getObjectId());
-                            Log.d(TAG, "location coords: " + test.getLocation());
+                            Location.allLocationNames.add(addressName);
 
                             location.saveInBackground(new SaveCallback() {
                                 @Override

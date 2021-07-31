@@ -50,6 +50,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
@@ -128,22 +129,28 @@ public class MainActivity extends AppCompatActivity {
 
     private void queryAvailableLocations() {
         ParseQuery<Location> queryLocations = ParseQuery.getQuery(Location.class);
-        queryLocations.whereEqualTo(Progress.KEY_USER, ParseUser.getCurrentUser());
-        queryLocations.include(Progress.KEY_USER);
+        queryLocations.whereEqualTo(Location.KEY_USER, ParseUser.getCurrentUser());
+        queryLocations.include(Location.KEY_USER);
         queryLocations.findInBackground(new FindCallback<Location>() {
             @Override
             public void done(List<Location> locationList, ParseException e) {
                 for (Location location : locationList) {
+                    Location.allLocationNames.add(location.getName());
                     Location.nameToLocationObject.put(location.getName(), location);
                 }
-                if (!permissionsGranted()) {
-                    ActivityCompat.requestPermissions(activity,
-                            new String[] {Manifest.permission.ACCESS_FINE_LOCATION,
-                                    Manifest.permission.ACCESS_BACKGROUND_LOCATION},
-                            123);
-                } else {
-                    addGeofenceForLocation(Location.getLocationObjectByName("Home"));
-                    addGeofences();
+                if (!Location.nameToLocationObject.isEmpty()) {
+                    if (!permissionsGranted()) {
+                        Log.d(TAG, "here");
+                        ActivityCompat.requestPermissions(activity,
+                                new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
+                                        Manifest.permission.ACCESS_BACKGROUND_LOCATION},
+                                123);
+                    } else {
+                        for (Location location : locationList) {
+                            addGeofenceForLocation(location);
+                        }
+                        addGeofences();
+                    }
                 }
             }
         });
@@ -165,13 +172,15 @@ public class MainActivity extends AppCompatActivity {
             HabitWrapper hw = (HabitWrapper) intent.getSerializableExtra("queriedHabits");
             List<Habit> queriedHabits = hw.getHabits();
             setHabitList(queriedHabits);
+
+            queryAvailableLocations(); // re-set geofences
         }
     };
 
     @Override
     protected void onResume() {
         super.onResume();
-        LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, new IntentFilter("queried-database"));
+        LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, new IntentFilter("midnight-service"));
     }
 
     @Override
@@ -202,8 +211,7 @@ public class MainActivity extends AppCompatActivity {
                         location.getLocation().getLongitude(),
                         150)
                 .setExpirationDuration(1000 * 60 * 60 * 24)
-                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_DWELL)
-                .setLoiteringDelay(1000 * 30)
+                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER)
                 .build());
     }
 
@@ -216,12 +224,18 @@ public class MainActivity extends AppCompatActivity {
 
     private void addGeofences() {
         GeofencingRequest geofencingRequest = getGeofencingRequest();
-        Intent intent = new Intent(this, GeofenceReceiver.class);
+        Intent intent = new Intent("com.example.GEOFENCE_BROADCAST").setPackage(getPackageName());
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this, -10, intent, 0);
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            Log.e(TAG, "ACCESS_FINE_LOCATION permission not granted");
-            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, 123);
+
+        if ((ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+                || (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED)) {
+            Log.e(TAG, "location permissions not granted");
+            ActivityCompat.requestPermissions(activity,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_BACKGROUND_LOCATION},
+                    123);
         }
+
         geofencingClient.addGeofences(geofencingRequest, pendingIntent)
                 .addOnSuccessListener(this, new OnSuccessListener<Void>() {
                     @Override

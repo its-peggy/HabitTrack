@@ -5,8 +5,12 @@ import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @ParseClassName("Location")
 public class Location extends ParseObject {
@@ -15,6 +19,7 @@ public class Location extends ParseObject {
     public static final String KEY_NAME = "name";
     public static final String KEY_LOCATION = "location";
 
+    public static List<String> allLocationNames = new ArrayList<>();
     public static Map<String, Location> nameToLocationObject = new HashMap<>();
 
     public ParseUser getUser() {

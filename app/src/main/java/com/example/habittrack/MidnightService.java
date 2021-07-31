@@ -1,16 +1,29 @@
 package com.example.habittrack;
 
+import android.Manifest;
+import android.app.Activity;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.IBinder;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.example.habittrack.models.Habit;
+import com.example.habittrack.models.Location;
 import com.example.habittrack.models.Progress;
+import com.google.android.gms.location.Geofence;
+import com.google.android.gms.location.GeofencingClient;
+import com.google.android.gms.location.GeofencingRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -22,6 +35,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -37,7 +51,7 @@ public class MidnightService extends Service {
     public void onCreate() {
         super.onCreate();
         context = this;
-        queryDatabase();
+        createNewProgressEntries();
     }
 
     @Override
@@ -51,7 +65,7 @@ public class MidnightService extends Service {
         return null;
     }
 
-    private void queryDatabase() {
+    private void createNewProgressEntries() {
         ParseQuery<Habit> queryHabits = ParseQuery.getQuery(Habit.class);
         queryHabits.include(Habit.KEY_USER);
         queryHabits.include(Habit.KEY_TODAY_PROGRESS);
@@ -106,7 +120,7 @@ public class MidnightService extends Service {
                             return;
                         }
                         Log.d(TAG, "Successfully saved habits with updated Progress pointers");
-                        Intent intent = new Intent("queried-database");
+                        Intent intent = new Intent("midnight-service");
                         HabitWrapper hw = new HabitWrapper(queriedHabits);
                         intent.putExtra("queriedHabits", hw);
                         LocalBroadcastManager.getInstance(context).sendBroadcast(intent);

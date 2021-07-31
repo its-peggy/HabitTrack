@@ -9,6 +9,7 @@
     <color name="white">#FFFFFFFF</color>
     <color name="light_lilac">#F0E5FF</color>
     <color name="very_light_grey">#EAEAEA</color>
+    <color name="medium_grey">#888888</color>
 
     <color name="progress0">#f3e79b</color>
     <color name="progress1">#fac484</color>

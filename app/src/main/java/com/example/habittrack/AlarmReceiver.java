@@ -40,7 +40,7 @@ public class AlarmReceiver extends BroadcastReceiver {
             long reminderTimeMillis = intent.getLongExtra(Habit.KEY_REMIND_AT_TIME, -1);
             String habitName = intent.getStringExtra(Habit.KEY_NAME);
             showNotification(context, habitName);
-            setNextHabitReminder(context, requestCode, reminderTimeMillis);
+            setNextHabitReminder(context, requestCode, habitName, reminderTimeMillis);
         }
     }
 
@@ -59,10 +59,13 @@ public class AlarmReceiver extends BroadcastReceiver {
         notificationManager.notify(1, builder.build());
     }
 
-    public void setNextHabitReminder(Context context, int requestCode, long reminderTimeMillis) {
+    public void setNextHabitReminder(Context context, int requestCode, String habitName, long reminderTimeMillis) {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(context, AlarmReceiver.class);
         intent.setAction(TIME_NOTIFY_TAG);
+        intent.putExtra(Habit.KEY_NAME, habitName);
+        intent.putExtra(Habit.KEY_REQUEST_CODE, requestCode);
+        intent.putExtra(Habit.KEY_REMIND_AT_TIME, reminderTimeMillis + MILLIS_IN_DAY);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, requestCode, intent, 0);
         alarmManager.set(AlarmManager.RTC_WAKEUP, reminderTimeMillis + MILLIS_IN_DAY, pendingIntent);
     }

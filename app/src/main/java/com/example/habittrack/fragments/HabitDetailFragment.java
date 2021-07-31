@@ -118,6 +118,16 @@ public class HabitDetailFragment extends Fragment {
         etDetailHabitGoalQty.setText(Integer.toString(habit.getQtyGoal()));
         etDetailHabitUnits.setText(habit.getUnit());
 
+        for (int i = 0; i < chipGroupLocations.getChildCount(); i++) {
+            Chip chip = (Chip) chipGroupLocations.getChildAt(i);
+            String locationName = chip.getText().toString();
+            if (!Location.allLocationNames.contains(locationName)) {
+                chip.setVisibility(View.GONE);
+//                chip.setCheckable(false);
+//                chip.setChipBackgroundColorResource(R.color.medium_grey);
+            }
+        }
+
         String habitTimeOfDay = habit.getTimeOfDay();
         for (int i = 0; i < chipGroupTimeOfDay.getChildCount(); i++){
             Chip chip = (Chip) chipGroupTimeOfDay.getChildAt(i);
@@ -148,9 +158,6 @@ public class HabitDetailFragment extends Fragment {
             chipGroupReminderType.check(R.id.chipLocation);
             tpDetailReminderTime.setVisibility(View.GONE);
             chipGroupLocations.setVisibility(View.VISIBLE);
-//            Location location = habit.getRemindAtLocation();
-//            Log.d(TAG, "location is null: " + (location == null));
-//            Log.d(TAG, "location location: " + location.getLocation());
             String reminderLocationName = habit.getRemindAtLocation().getName();
             for (int i = 0; i < chipGroupLocations.getChildCount(); i++){
                 Chip chip = (Chip) chipGroupLocations.getChildAt(i);
@@ -255,24 +262,29 @@ public class HabitDetailFragment extends Fragment {
                     habit.setRemindAtTime(reminderDateObject);
 
                     if (!nextReminderTime.equals(currentReminderTime)) {
+                        long reminderTimeMillis = nextReminderDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+
                         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+
                         Intent intent = new Intent(context, AlarmReceiver.class);
                         intent.setAction(AlarmReceiver.TIME_NOTIFY_TAG);
+                        intent.putExtra(Habit.KEY_NAME, habit.getName());
+                        intent.putExtra(Habit.KEY_REQUEST_CODE, habit.getRequestCode());
+                        intent.putExtra(Habit.KEY_REMIND_AT_TIME, reminderTimeMillis);
+
                         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, habit.getRequestCode(), intent, 0);
                         alarmManager.cancel(pendingIntent);
 
                         PendingIntent newPendingIntent = PendingIntent.getBroadcast(context, habit.getRequestCode(), intent, 0);
-                        long reminderMillis = nextReminderDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-                        alarmManager.set(AlarmManager.RTC_WAKEUP, reminderMillis, newPendingIntent);
+                        alarmManager.set(AlarmManager.RTC_WAKEUP, reminderTimeMillis, newPendingIntent);
                     }
                 } else {
                     int checkedChipLocationId = chipGroupLocations.getCheckedChipId();
                     Chip checkedChipLocation = view.findViewById(checkedChipLocationId);
                     String locationName = checkedChipLocation.getText().toString();
-                    Location reminderLocation = Location.nameToLocationObject.get(locationName);
+                    Location reminderLocation = Location.getLocationObjectByName(locationName);
+                    Location oldLocation = habit.getRemindAtLocation();
                     habit.setRemindAtLocation(reminderLocation);
-
-                    // TODO: update geofence?
                 }
 
                 progress.setQtyGoal(habitGoalQty);
