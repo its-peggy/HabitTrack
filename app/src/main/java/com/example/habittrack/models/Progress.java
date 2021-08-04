@@ -20,9 +20,6 @@ public class Progress extends ParseObject {
     public static final String KEY_PCT_COMPLETED = "pctCompleted";
     public static final String KEY_COMPLETED = "completed";
 
-    public static Map<String, Double> dateToTotalProgressPct = new HashMap<>();
-    public static Map<String, Long> dateToProgressCount = new HashMap<>();
-
     public ParseUser getUser() { return getParseUser(KEY_USER); }
 
     public void setUser(ParseUser parseUser) {

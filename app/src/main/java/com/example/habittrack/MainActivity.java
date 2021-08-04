@@ -31,6 +31,7 @@ import android.widget.Toast;
 
 import com.example.habittrack.models.Habit;
 import com.example.habittrack.models.Location;
+import com.example.habittrack.models.OverallProgress;
 import com.example.habittrack.models.Progress;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingClient;
@@ -41,8 +42,10 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.parse.FindCallback;
 import com.parse.ParseException;
+import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -52,7 +55,9 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -65,6 +70,10 @@ public class MainActivity extends AppCompatActivity {
 
     List<Geofence> geofenceList = new ArrayList<>();
     List<Habit> habitList = new ArrayList<>();
+    List<OverallProgress> overallProgressList = new ArrayList<>();
+
+    private Map<String, Double> dateToTotalProgressPct = new HashMap<>();
+    private Map<String, Integer> dateToProgressCount = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,15 +89,14 @@ public class MainActivity extends AppCompatActivity {
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
                 Fragment fragment;
                 switch (menuItem.getItemId()) {
-                    case R.id.action_home:
-                        fragment = new HomeFragment();
-                        break;
                     case R.id.action_progress:
                         fragment = new ProgressFragment();
                         break;
                     case R.id.action_profile:
-                    default:
                         fragment = new ProfileFragment();
+                        break;
+                    default:
+                        fragment = new HomeFragment();
                         break;
                 }
                 fragmentManager.beginTransaction().replace(R.id.flContainer, fragment).commit();
@@ -99,10 +107,62 @@ public class MainActivity extends AppCompatActivity {
 
         queryAvailableLocations();
 
+        createOverallProgresses();
+
         createNotificationChannel();
 
         setMidnightAlarm();
 
+    }
+
+    private void createOverallProgresses() {
+        if (overallProgressList.isEmpty()) {
+            ParseQuery<Progress> queryProgressEntries = ParseQuery.getQuery(Progress.class);
+            queryProgressEntries.whereEqualTo(Progress.KEY_USER, ParseUser.getCurrentUser());
+            queryProgressEntries.setLimit(1000);
+            queryProgressEntries.include(Progress.KEY_USER);
+            queryProgressEntries.include(Progress.KEY_HABIT);
+            queryProgressEntries.findInBackground(new FindCallback<Progress>() {
+                @Override
+                public void done(List<Progress> progressList, ParseException e) {
+                    for (Progress progress : progressList) {
+                        String date = progress.getDate();
+                        if (!dateToTotalProgressPct.containsKey(date)) {
+                            dateToTotalProgressPct.put(date, progress.getPctCompleted() / 100);
+                        } else {
+                            double currentTotalPct = dateToTotalProgressPct.get(date);
+                            dateToTotalProgressPct.put(date, currentTotalPct + progress.getPctCompleted() / 100);
+                        }
+                        if (!dateToProgressCount.containsKey(date)) {
+                            dateToProgressCount.put(date, 1);
+                        } else {
+                            int currentTotalCount = dateToProgressCount.get(date);
+                            dateToProgressCount.put(date, currentTotalCount + 1);
+                        }
+                    }
+                    for (Map.Entry<String, Double> entry : dateToTotalProgressPct.entrySet()) {
+                        String date = entry.getKey();
+                        Double totalPct = entry.getValue();
+                        int totalCount = dateToProgressCount.get(date);
+                        OverallProgress overallProgress = new OverallProgress();
+                        overallProgress.setUser(ParseUser.getCurrentUser());
+                        overallProgress.setDate(date);
+                        overallProgress.setNumHabits(totalCount);
+                        overallProgress.setOverallPct(totalPct / totalCount);
+                        overallProgressList.add(overallProgress);
+                    }
+                    ParseObject.saveAllInBackground(overallProgressList, new SaveCallback() {
+                        @Override
+                        public void done(ParseException e) {
+                            if (e != null) {
+                                Log.e(TAG, "Error saving OverallProgress entries");
+                            }
+                            Log.d(TAG, "Successfully saved OverallProgress entries");
+                        }
+                    });
+                }
+            });
+        }
     }
 
     private Boolean permissionsGranted() {
@@ -169,10 +229,15 @@ public class MainActivity extends AppCompatActivity {
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            HabitWrapper hw = (HabitWrapper) intent.getSerializableExtra("queriedHabits");
-            List<Habit> queriedHabits = hw.getHabits();
-            setHabitList(queriedHabits);
-
+            if (intent.getAction() == "updated-progress-entries") {
+                HabitWrapper hw = (HabitWrapper) intent.getSerializableExtra("queriedHabits");
+                List<Habit> queriedHabits = hw.getHabits();
+                setHabitList(queriedHabits);
+            } else if (intent.getAction() == "new-overall-progress") {
+                OverallProgressWrapper wrapper = (OverallProgressWrapper) intent.getSerializableExtra("newOverallProgress");
+                List<OverallProgress> overallProgressList = wrapper.getOverallProgressList();
+                setOverallProgressList(overallProgressList);
+            }
             queryAvailableLocations(); // re-set geofences
         }
     };
@@ -257,6 +322,14 @@ public class MainActivity extends AppCompatActivity {
 
     public void setHabitList(List<Habit> habits) {
         habitList = habits;
+    }
+
+    public List<OverallProgress> getOverallProgressList() {
+        return overallProgressList;
+    }
+
+    public void setOverallProgressList(List<OverallProgress> overallProgresses) {
+        overallProgressList = overallProgresses;
     }
 
 }

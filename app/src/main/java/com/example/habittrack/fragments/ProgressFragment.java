@@ -1,34 +1,26 @@
 package com.example.habittrack.fragments;
 
-import android.animation.ArgbEvaluator;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.ShapeDrawable;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
-import androidx.core.graphics.ColorUtils;
 import androidx.fragment.app.Fragment;
 
-import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.habittrack.DayViewContainer;
 import com.example.habittrack.MainActivity;
 import com.example.habittrack.MonthHeaderViewContainer;
 import com.example.habittrack.R;
-import com.example.habittrack.StartActivity;
-import com.example.habittrack.models.Habit;
+import com.example.habittrack.models.OverallProgress;
 import com.example.habittrack.models.Progress;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.kizitonwose.calendarview.CalendarView;
@@ -40,11 +32,12 @@ import com.kizitonwose.calendarview.ui.MonthHeaderFooterBinder;
 import com.kizitonwose.calendarview.ui.ViewContainer;
 import com.parse.FindCallback;
 import com.parse.ParseException;
+import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
 import org.jetbrains.annotations.NotNull;
-import org.w3c.dom.Text;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -53,11 +46,14 @@ import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.time.temporal.WeekFields;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.function.ObjIntConsumer;
+
+import kotlin.Unit;
+import kotlin.jvm.functions.Function1;
 
 public class ProgressFragment extends Fragment {
 
@@ -65,6 +61,8 @@ public class ProgressFragment extends Fragment {
     private Context context;
 
     private CalendarView calendarView;
+    private List<OverallProgress> overallProgressList;
+    private Map<String, Double> dateToProgressMap = new HashMap<>();
 
     public ProgressFragment() {};
 
@@ -72,6 +70,14 @@ public class ProgressFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         context = getContext();
+        overallProgressList = ((MainActivity) getActivity()).getOverallProgressList();
+        if (overallProgressList.isEmpty()) {
+            Log.e(TAG, "overallProgressList is empty");
+        } else {
+            for (OverallProgress overallProgress : overallProgressList) {
+                dateToProgressMap.put(overallProgress.getDate(), overallProgress.getOverallPct());
+            }
+        }
     }
 
     @Override
@@ -85,43 +91,10 @@ public class ProgressFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         calendarView = view.findViewById(R.id.calendarView);
-
-        ParseQuery<Progress> queryProgressEntries = ParseQuery.getQuery(Progress.class);
-        queryProgressEntries.whereEqualTo(Progress.KEY_USER, ParseUser.getCurrentUser());
-        queryProgressEntries.include(Progress.KEY_USER);
-        queryProgressEntries.include(Progress.KEY_HABIT);
-        queryProgressEntries.findInBackground(new FindCallback<Progress>() {
-            @Override
-            public void done(List<Progress> progressList, ParseException e) {
-                for (Progress progress : progressList) {
-                    String date = progress.getDate();
-                    if (!Progress.dateToTotalProgressPct.containsKey(date)) {
-                        Progress.dateToTotalProgressPct.put(date, progress.getPctCompleted() / 100);
-                    } else {
-                        double currentTotalPct = Progress.dateToTotalProgressPct.get(date);
-                        Progress.dateToTotalProgressPct.put(date, currentTotalPct + progress.getPctCompleted() / 100);
-                    }
-                    if (!Progress.dateToProgressCount.containsKey(date)) {
-                        Progress.dateToProgressCount.put(date, (long) 1);
-                    } else {
-                        long currentTotalCount = Progress.dateToProgressCount.get(date);
-                        Progress.dateToProgressCount.put(date, currentTotalCount + 1);
-                    }
-                }
-                Map<String, Double> dateToPct = new HashMap<>();
-                for (Map.Entry<String, Double> entry : Progress.dateToTotalProgressPct.entrySet()) {
-                    String date = entry.getKey();
-                    Double totalPct = entry.getValue();
-                    Long totalCount = Progress.dateToProgressCount.get(date);
-                    dateToPct.put(date, totalPct / totalCount);
-                }
-                calendarSetup(dateToPct);
-            }
-        });
-
+        calendarSetup();
     }
 
-    private void calendarSetup(Map<String, Double> dateToPct) {
+    private void calendarSetup() {
         calendarView.setDayBinder(new DayBinder<ViewContainer>() {
             @NotNull
             @Override
@@ -139,11 +112,10 @@ public class ProgressFragment extends Fragment {
                     background.setColor(ContextCompat.getColor(context, R.color.white));
                 } else {
                     dayViewContainer.tvCalendarDay.setTextColor(Color.BLACK);
-                    LocalDate localDate = calendarDay.getDate();
-                    String dateString = formatLocalDate(localDate);
+                    String dateString = formatLocalDate(calendarDay.getDate());
                     GradientDrawable background = (GradientDrawable) dayViewContainer.tvCalendarDay.getBackground();
-                    if (dateToPct.containsKey(dateString)) {
-                        Double ratio = dateToPct.get(dateString);
+                    if (dateToProgressMap.containsKey(dateString)) {
+                        Double ratio = dateToProgressMap.get(dateString);
                         int septile = (int) Math.floor(ratio * 7);
                         int color = 0;
                         switch (septile) {
@@ -174,6 +146,15 @@ public class ProgressFragment extends Fragment {
                         background.setColor(ContextCompat.getColor(context, R.color.very_light_grey));
                     }
                 }
+            }
+        });
+
+        calendarView.setMonthScrollListener(new Function1<CalendarMonth, Unit>() {
+            @Override
+            public Unit invoke(CalendarMonth calendarMonth) {
+                Log.d(TAG, "calendar scrolled");
+                calendarView.notifyMonthChanged(calendarMonth.getYearMonth());
+                return null;
             }
         });
 

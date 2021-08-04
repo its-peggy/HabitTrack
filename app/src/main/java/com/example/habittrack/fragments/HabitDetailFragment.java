@@ -123,8 +123,6 @@ public class HabitDetailFragment extends Fragment {
             String locationName = chip.getText().toString();
             if (!Location.allLocationNames.contains(locationName)) {
                 chip.setVisibility(View.GONE);
-//                chip.setCheckable(false);
-//                chip.setChipBackgroundColorResource(R.color.medium_grey);
             }
         }
 

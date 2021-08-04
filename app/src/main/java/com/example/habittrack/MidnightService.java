@@ -17,6 +17,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.example.habittrack.models.Habit;
 import com.example.habittrack.models.Location;
+import com.example.habittrack.models.OverallProgress;
 import com.example.habittrack.models.Progress;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingClient;
@@ -25,12 +26,14 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.parse.FindCallback;
+import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -44,6 +47,8 @@ public class MidnightService extends Service {
     public static final String TAG = "MidnightService";
     Context context;
 
+    int num_habits = 0;
+
     public MidnightService() {
     }
 
@@ -52,6 +57,7 @@ public class MidnightService extends Service {
         super.onCreate();
         context = this;
         createNewProgressEntries();
+        createNewOverallProgressEntry();
     }
 
     @Override
@@ -79,6 +85,7 @@ public class MidnightService extends Service {
                     return;
                 }
                 Log.d(TAG, "Successfully queried habits from Parse");
+                num_habits = queriedHabits.size();
                 for (Habit habit : queriedHabits) {
                     Progress oldProgress = habit.getTodayProgress();
                     Progress newProgress = new Progress();
@@ -121,12 +128,32 @@ public class MidnightService extends Service {
                         }
                         Log.d(TAG, "Successfully saved habits with updated Progress pointers");
                         Intent intent = new Intent("midnight-service");
+                        intent.setAction("updated-progress-entries");
                         HabitWrapper hw = new HabitWrapper(queriedHabits);
                         intent.putExtra("queriedHabits", hw);
                         LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
-                        stopSelf();
                     }
                 });
+            }
+        });
+    }
+
+    private void createNewOverallProgressEntry() {
+        OverallProgress overallProgress = new OverallProgress();
+        overallProgress.setUser(ParseUser.getCurrentUser());
+        overallProgress.setDate(todayDate());
+        overallProgress.setNumHabits(num_habits);
+        overallProgress.setOverallPct(0);
+        overallProgress.saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                if (e != null) {
+                    Log.e(TAG, "Error saving new OverallProgress entry", e);
+                }
+                Log.d(TAG, "Successfully saved new OverallProgress entry");
+                Intent intent = new Intent("midnight-service");
+                intent.setAction("new-overall-progress");
+                intent.putExtra("newOverallProgress", (Serializable) overallProgress);
             }
         });
     }

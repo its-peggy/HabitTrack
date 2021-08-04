@@ -4,6 +4,7 @@ import android.app.Application;
 
 import com.example.habittrack.models.Habit;
 import com.example.habittrack.models.Location;
+import com.example.habittrack.models.OverallProgress;
 import com.example.habittrack.models.Progress;
 import com.parse.Parse;
 import com.parse.ParseClassName;
@@ -16,6 +17,7 @@ public class ParseApplication extends Application {
         ParseObject.registerSubclass(Habit.class);
         ParseObject.registerSubclass(Location.class);
         ParseObject.registerSubclass(Progress.class);
+        ParseObject.registerSubclass(OverallProgress.class);
         Parse.initialize(new Parse.Configuration.Builder(this)
                 .applicationId("OtJFGklu8KmBLByaDS14xODbTugfw3L51XeEbtZX")
                 .clientKey("0EqsWvOYBgHAerYMfmDaub6jPrXqL3ZZ5zcJgk7z")
