@@ -229,14 +229,17 @@ public class MainActivity extends AppCompatActivity {
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (intent.getAction() == "updated-progress-entries") {
+            if (intent.getStringExtra("type").equals("updated-progress-entries")) {
                 HabitWrapper hw = (HabitWrapper) intent.getSerializableExtra("queriedHabits");
                 List<Habit> queriedHabits = hw.getHabits();
                 setHabitList(queriedHabits);
-            } else if (intent.getAction() == "new-overall-progress") {
+            } else if (intent.getStringExtra("type").equals("new-overall-progress")) {
                 OverallProgressWrapper wrapper = (OverallProgressWrapper) intent.getSerializableExtra("newOverallProgress");
                 List<OverallProgress> overallProgressList = wrapper.getOverallProgressList();
                 setOverallProgressList(overallProgressList);
+            }
+            else {
+                Log.d(TAG, "LocalBroadcast type not recognized");
             }
             queryAvailableLocations(); // re-set geofences
         }

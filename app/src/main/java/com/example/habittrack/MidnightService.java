@@ -128,7 +128,7 @@ public class MidnightService extends Service {
                         }
                         Log.d(TAG, "Successfully saved habits with updated Progress pointers");
                         Intent intent = new Intent("midnight-service");
-                        intent.setAction("updated-progress-entries");
+                        intent.putExtra("type", "updated-progress-entries");
                         HabitWrapper hw = new HabitWrapper(queriedHabits);
                         intent.putExtra("queriedHabits", hw);
                         LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
@@ -152,7 +152,7 @@ public class MidnightService extends Service {
                 }
                 Log.d(TAG, "Successfully saved new OverallProgress entry");
                 Intent intent = new Intent("midnight-service");
-                intent.setAction("new-overall-progress");
+                intent.putExtra("type", "new-overall-progress");
                 intent.putExtra("newOverallProgress", (Serializable) overallProgress);
             }
         });

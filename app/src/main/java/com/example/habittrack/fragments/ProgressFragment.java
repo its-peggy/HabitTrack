@@ -1,6 +1,9 @@
 package com.example.habittrack.fragments;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
@@ -9,6 +12,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,9 +23,14 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.example.habittrack.DayViewContainer;
+import com.example.habittrack.HabitWrapper;
 import com.example.habittrack.MainActivity;
 import com.example.habittrack.MonthHeaderViewContainer;
+import com.example.habittrack.OverallProgressWrapper;
+import com.example.habittrack.ProgressTabHabitsAdapter;
+import com.example.habittrack.ProgressWrapper;
 import com.example.habittrack.R;
+import com.example.habittrack.models.Habit;
 import com.example.habittrack.models.OverallProgress;
 import com.example.habittrack.models.Progress;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -46,6 +57,7 @@ import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.time.temporal.WeekFields;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -61,8 +73,13 @@ public class ProgressFragment extends Fragment {
     private Context context;
 
     private CalendarView calendarView;
+    private RecyclerView rvHabits;
+    private List<Progress> progressList;
     private List<OverallProgress> overallProgressList;
+    private ProgressTabHabitsAdapter adapter;
     private Map<String, Double> dateToProgressMap = new HashMap<>();
+
+    private YearMonth currentVisibleMonth;
 
     public ProgressFragment() {};
 
@@ -78,6 +95,7 @@ public class ProgressFragment extends Fragment {
                 dateToProgressMap.put(overallProgress.getDate(), overallProgress.getOverallPct());
             }
         }
+        LocalBroadcastManager.getInstance(context).registerReceiver(broadcastReceiver, new IntentFilter("habits-progress-specific-day"));
     }
 
     @Override
@@ -91,15 +109,38 @@ public class ProgressFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         calendarView = view.findViewById(R.id.calendarView);
+        rvHabits = view.findViewById(R.id.rvProgressHabits);
+
         calendarSetup();
+
+        progressList = new ArrayList<>();
+        adapter = new ProgressTabHabitsAdapter(context, progressList);
+        rvHabits.setAdapter(adapter);
+        rvHabits.setLayoutManager(new LinearLayoutManager(context));
     }
+
+    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals("habits-progress-specific-day")) {
+                Log.d(TAG, "received local broadcast");
+                ProgressWrapper wrapper = (ProgressWrapper) intent.getSerializableExtra("queried-progress-list");
+                List<Progress> queriedProgressList = wrapper.getProgressList();
+                progressList.clear();
+                progressList.addAll(queriedProgressList);
+                adapter.notifyDataSetChanged();
+            } else {
+                Log.d(TAG, "LocalBroadcast type not recognized");
+            }
+        }
+    };
 
     private void calendarSetup() {
         calendarView.setDayBinder(new DayBinder<ViewContainer>() {
             @NotNull
             @Override
             public ViewContainer create(@NotNull View view) {
-                return new DayViewContainer(view);
+                return new DayViewContainer(view, currentVisibleMonth);
             }
 
             @Override
@@ -153,6 +194,7 @@ public class ProgressFragment extends Fragment {
             @Override
             public Unit invoke(CalendarMonth calendarMonth) {
                 Log.d(TAG, "calendar scrolled");
+                currentVisibleMonth = calendarMonth.getYearMonth();
                 calendarView.notifyMonthChanged(calendarMonth.getYearMonth());
                 return null;
             }

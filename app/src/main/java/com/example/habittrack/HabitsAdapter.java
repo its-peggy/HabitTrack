@@ -24,7 +24,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
-import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.example.habittrack.fragments.HabitDetailFragment;
 import com.example.habittrack.models.Habit;
 import com.example.habittrack.models.Progress;
@@ -54,8 +53,6 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private static final int SECTION_HEADER_VIEW = 2;
     private Context context;
     private List<Habit> habits;
-
-    private GestureDetector detector;
 
     private static final List<String> TIME_OF_DAY_SECTIONS = Arrays.asList("All day", "Morning", "Noon", "Afternoon", "Evening", "Night");
     private static final List<String> TAG_SECTIONS = Arrays.asList("Education", "Exercise", "Health", "Personal", "Productivity");
@@ -137,7 +134,7 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             habitPositionToOriginal.put(position, position-offset);
             return offset;
         }
-        List<Integer> sectionHeaderPositions = new ArrayList<Integer>(sectionHeaderPositionToName.keySet());
+        List<Integer> sectionHeaderPositions = new ArrayList<>(sectionHeaderPositionToName.keySet());
         Collections.sort(sectionHeaderPositions);
         int listSize = sectionHeaderPositions.size();
         for (int i = 0; i < listSize - 1; i++) {
