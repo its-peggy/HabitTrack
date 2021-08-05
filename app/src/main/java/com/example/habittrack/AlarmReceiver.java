@@ -14,8 +14,10 @@ import androidx.core.app.NotificationManagerCompat;
 
 import com.example.habittrack.models.Habit;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.SerializationUtils;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -39,8 +41,13 @@ public class AlarmReceiver extends BroadcastReceiver {
             int requestCode = intent.getIntExtra(Habit.KEY_REQUEST_CODE, -1);
             long reminderTimeMillis = intent.getLongExtra(Habit.KEY_REMIND_AT_TIME, -1);
             String habitName = intent.getStringExtra(Habit.KEY_NAME);
-            showNotification(context, habitName);
+            int[] repeatOnDays = intent.getIntArrayExtra(Habit.KEY_REPEAT_ON_DAYS);
             setNextHabitReminder(context, requestCode, habitName, reminderTimeMillis);
+
+            DayOfWeek currentDayOfWeek = LocalDate.now().getDayOfWeek();
+            if (ArrayUtils.contains(repeatOnDays, currentDayOfWeek.getValue())) {
+                showNotification(context, habitName);
+            }
         }
     }
 

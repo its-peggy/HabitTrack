@@ -52,6 +52,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -73,6 +74,7 @@ public class HabitDetailFragment extends Fragment {
 
     private ChipGroup chipGroupTimeOfDay;
     private ChipGroup chipGroupTag;
+    private ChipGroup chipGroupRepeat;
     private ChipGroup chipGroupReminderType;
     private ChipGroup chipGroupLocations;
 
@@ -111,6 +113,7 @@ public class HabitDetailFragment extends Fragment {
 
         chipGroupTimeOfDay = view.findViewById(R.id.chipGroupTimeOfDay);
         chipGroupTag = view.findViewById(R.id.chipGroupTag);
+        chipGroupRepeat = view.findViewById(R.id.chipGroupRepeat);
         chipGroupReminderType = view.findViewById(R.id.chipGroupReminderType);
         chipGroupLocations = view.findViewById(R.id.chipGroupLocations);
 
@@ -142,6 +145,11 @@ public class HabitDetailFragment extends Fragment {
             if (chipText.equals(habitTag)){
                 chipGroupTag.check(chip.getId());
             }
+        }
+
+        List<Integer> remindOnDays = habit.getRepeatOnDays();
+        for (int day : remindOnDays) {
+            chipGroupRepeat.check(chipGroupRepeat.getChildAt(day % 7).getId());
         }
 
         boolean timeReminder = (habit.getRemindAtTime() != null);
@@ -236,12 +244,25 @@ public class HabitDetailFragment extends Fragment {
                 Chip checkedChipTag = view.findViewById(checkedChipTagId);
                 String tag = checkedChipTag.getText().toString();
 
+                List<Integer> updatedRepeatOnDays = new ArrayList<>();
+                for (int i = 0; i < chipGroupRepeat.getChildCount(); i++){
+                    Chip chip = (Chip) chipGroupRepeat.getChildAt(i);
+                    if (chip.isChecked()) {
+                        if (i == 0) {
+                            updatedRepeatOnDays.add(7);
+                        } else {
+                            updatedRepeatOnDays.add(i);
+                        }
+                    }
+                }
+
                 habit.setName(habitName);
                 habit.setIcon(icon);
                 habit.setTag(tag);
                 habit.setQtyGoal(habitGoalQty);
                 habit.setUnit(habitUnits);
                 habit.setTimeOfDay(timeOfDay);
+                habit.setRepeatOnDays(updatedRepeatOnDays);
 
                 if (chipGroupReminderType.getCheckedChipId() == R.id.chipTime) {
                     LocalDateTime currentReminderDateTime = habit.getRemindAtTime().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();

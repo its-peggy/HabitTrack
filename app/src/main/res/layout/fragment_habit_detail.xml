@@ -204,10 +204,87 @@
     </com.google.android.material.chip.ChipGroup>
 
     <com.google.android.material.chip.ChipGroup
-        android:id="@+id/chipGroupReminderType"
+        android:id="@+id/chipGroupRepeat"
         android:layout_width="292dp"
         android:layout_height="wrap_content"
         android:layout_below="@+id/chipGroupTag"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_centerHorizontal="false"
+        android:layout_marginStart="100dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        app:selectionRequired="true">
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipSunday"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="S"
+            android:textSize="12sp"
+            app:chipMinTouchTargetSize="0dp" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipMonday"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="M"
+            android:textSize="12sp"
+            app:chipMinTouchTargetSize="0dp"/>
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipTuesday"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="T"
+            android:textSize="12sp"
+            app:chipMinTouchTargetSize="0dp"/>
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipWednesday"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="W"
+            android:textSize="12sp"
+            app:chipMinTouchTargetSize="0dp"/>
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipThursday"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="T"
+            android:textSize="12sp"
+            app:chipMinTouchTargetSize="0dp"/>
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipFriday"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="F"
+            android:textSize="12sp"
+            app:chipMinTouchTargetSize="0dp"/>
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chipSaturday"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="S"
+            android:textSize="12sp"
+            app:chipMinTouchTargetSize="0dp" />
+    </com.google.android.material.chip.ChipGroup>
+
+    <com.google.android.material.chip.ChipGroup
+        android:id="@+id/chipGroupReminderType"
+        android:layout_width="292dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/chipGroupRepeat"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
         android:layout_centerHorizontal="false"
@@ -301,11 +378,22 @@
         android:id="@+id/tvDetailReminderType"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/chipGroupRepeat"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="false"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="30dp"
+        android:text="Reminder:" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_below="@+id/chipGroupTag"
         android:layout_alignParentStart="true"
         android:layout_alignParentBottom="false"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="31dp"
-        android:text="Reminder:" />
+        android:layout_marginTop="20dp"
+        android:text="Repeat:" />
 
 </RelativeLayout>

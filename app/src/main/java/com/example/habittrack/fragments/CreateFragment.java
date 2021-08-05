@@ -43,11 +43,14 @@ import com.parse.SaveCallback;
 
 import com.example.habittrack.R;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 import java.io.ByteArrayOutputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -70,6 +73,7 @@ public class CreateFragment extends Fragment {
 
     private ChipGroup chipGroupTimeOfDay;
     private ChipGroup chipGroupTag;
+    private ChipGroup chipGroupRepeat;
     private ChipGroup chipGroupReminderType;
     private ChipGroup chipGroupLocations;
 
@@ -102,6 +106,7 @@ public class CreateFragment extends Fragment {
 
         chipGroupTimeOfDay = view.findViewById(R.id.chipGroupTimeOfDay);
         chipGroupTag = view.findViewById(R.id.chipGroupTag);
+        chipGroupRepeat = view.findViewById(R.id.chipGroupRepeat);
         chipGroupReminderType = view.findViewById(R.id.chipGroupReminderType);
         chipGroupLocations = view.findViewById(R.id.chipGroupLocations);
 
@@ -193,6 +198,21 @@ public class CreateFragment extends Fragment {
                 Chip checkedChipTag = view.findViewById(checkedChipTagId);
                 String tag = checkedChipTag.getText().toString();
 
+                List<Integer> repeatOnDays = new ArrayList<>();
+                for (int i = 0; i < chipGroupRepeat.getChildCount(); i++){
+                    Chip chip = (Chip) chipGroupRepeat.getChildAt(i);
+                    if (chip.isChecked()) {
+                        if (i == 0) {
+                            repeatOnDays.add(7);
+                        } else {
+                            repeatOnDays.add(i);
+                        }
+                    }
+                }
+
+                int[] intArrayRepeat = ArrayUtils.toPrimitive(repeatOnDays.toArray(new Integer[repeatOnDays.size()]));
+
+
                 if (habitName.isEmpty() || habitUnits.isEmpty()) {
                     Toast.makeText(getContext(), "Please enter a value for all fields", Toast.LENGTH_SHORT).show();
                     return;
@@ -213,6 +233,7 @@ public class CreateFragment extends Fragment {
                 habit.setStreak(0);
                 habit.setLongestStreak(0);
                 habit.setRequestCode(requestCode);
+                habit.setRepeatOnDays(repeatOnDays);
 
                 if (chipGroupReminderType.getCheckedChipId() == R.id.chipTime) {
                     int reminderHour = tpCreateReminderTime.getHour();
@@ -235,7 +256,7 @@ public class CreateFragment extends Fragment {
                     intent.putExtra(Habit.KEY_NAME, habit.getName());
                     intent.putExtra(Habit.KEY_REQUEST_CODE, habit.getRequestCode());
                     intent.putExtra(Habit.KEY_REMIND_AT_TIME, reminderTimeMillis);
-
+                    intent.putExtra(Habit.KEY_REPEAT_ON_DAYS, intArrayRepeat);
                     PendingIntent pendingIntent = PendingIntent.getBroadcast(context, habit.getRequestCode(), intent, 0);
                     alarmManager.set(AlarmManager.RTC_WAKEUP, reminderTimeMillis, pendingIntent);
                 } else if (chipGroupReminderType.getCheckedChipId() == R.id.chipLocation) {

@@ -10,6 +10,7 @@ import java.io.Serializable;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @ParseClassName("Habit")
@@ -29,6 +30,7 @@ public class Habit extends ParseObject implements Serializable {
     public static final String KEY_REMIND_AT_TIME = "remindAtTime";
     public static final String KEY_REMIND_AT_LOCATION = "remindAtLocation";
     public static final String KEY_REQUEST_CODE = "requestCode";
+    public static final String KEY_REPEAT_ON_DAYS = "repeatOnDays";
     public static final Map<String, Integer> TIME_OF_DAY_MAP;
 
     static {
@@ -146,6 +148,14 @@ public class Habit extends ParseObject implements Serializable {
 
     public void setRequestCode(int requestCode) {
         put(KEY_REQUEST_CODE, requestCode);
+    }
+
+    public List<Integer> getRepeatOnDays() {
+        return getList(KEY_REPEAT_ON_DAYS);
+    }
+
+    public void setRepeatOnDays(List<Integer> repeatOnDays) {
+        put(KEY_REPEAT_ON_DAYS, repeatOnDays);
     }
 
     public static class CreationDateComparator implements Comparator<Habit> {
