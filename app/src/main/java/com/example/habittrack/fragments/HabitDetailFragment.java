@@ -1,8 +1,10 @@
 package com.example.habittrack.fragments;
 
 import android.app.AlarmManager;
+import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -37,13 +39,18 @@ import com.example.habittrack.MainActivity;
 import com.example.habittrack.R;
 import com.example.habittrack.models.Habit;
 import com.example.habittrack.models.Location;
+import com.example.habittrack.models.OverallProgress;
 import com.example.habittrack.models.Progress;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
+import com.parse.DeleteCallback;
+import com.parse.FindCallback;
 import com.parse.GetDataCallback;
 import com.parse.ParseException;
 import com.parse.ParseFile;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
@@ -53,14 +60,21 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class HabitDetailFragment extends Fragment {
 
     public static final String TAG = "HabitDetailFragment";
     protected List<Habit> habits;
     protected Habit habit;
+    protected int position;
     protected Progress progress;
 
     private Context context;
@@ -70,6 +84,7 @@ public class HabitDetailFragment extends Fragment {
     private EditText etDetailHabitUnits;
     private TimePicker tpDetailReminderTime;
     private Button btnDetailSaveHabit;
+    private Button btnDeleteHabit;
     private ImageButton ibDetailIconButton;
 
     private ChipGroup chipGroupTimeOfDay;
@@ -77,6 +92,10 @@ public class HabitDetailFragment extends Fragment {
     private ChipGroup chipGroupRepeat;
     private ChipGroup chipGroupReminderType;
     private ChipGroup chipGroupLocations;
+
+    private PopupWindow popupWindow;
+    private Button btnPopupCancel;
+    private Button btnPopupDeleteHabit;
 
     public HabitDetailFragment() { }
 
@@ -90,7 +109,7 @@ public class HabitDetailFragment extends Fragment {
         bottomNavBar.setVisibility(View.GONE);
 
         Bundle bundle = getArguments();
-        int position = bundle.getInt("Position");
+        position = bundle.getInt("Position");
         habit = habits.get(position);
         progress = habit.getTodayProgress();
     }
@@ -109,6 +128,7 @@ public class HabitDetailFragment extends Fragment {
         etDetailHabitUnits = view.findViewById(R.id.etDetailHabitUnits);
         tpDetailReminderTime = view.findViewById(R.id.tpDetailReminderTime);
         btnDetailSaveHabit = view.findViewById(R.id.btnDetailSaveHabit);
+        btnDeleteHabit = view.findViewById(R.id.btnDeleteHabit);
         ibDetailIconButton = view.findViewById(R.id.ibDetailIconButton);
 
         chipGroupTimeOfDay = view.findViewById(R.id.chipGroupTimeOfDay);
@@ -148,6 +168,9 @@ public class HabitDetailFragment extends Fragment {
         }
 
         List<Integer> remindOnDays = habit.getRepeatOnDays();
+        if (remindOnDays == null) {
+            remindOnDays = Arrays.asList(7, 1, 2, 3, 4, 5, 6);
+        }
         for (int day : remindOnDays) {
             chipGroupRepeat.check(chipGroupRepeat.getChildAt(day % 7).getId());
         }
@@ -331,5 +354,111 @@ public class HabitDetailFragment extends Fragment {
                 });
             }
         });
+
+        btnDeleteHabit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle(R.string.delete_dialog_title);
+                builder.setMessage(R.string.delete_dialog_message);
+                builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        deleteHabit();
+                        dialog.dismiss();
+                        HomeFragment homeFragment = new HomeFragment();
+                        getActivity().getSupportFragmentManager().beginTransaction()
+                                .replace(R.id.flContainer, homeFragment, "findThisFragment")
+                                .addToBackStack(null)
+                                .commit();
+                    }
+                });
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+
+                AlertDialog dialog = builder.create();
+                dialog.show();
+
+            }
+        });
+
     }
+
+    public void deleteHabit() {
+        ParseQuery<Progress> queryProgressEntries = ParseQuery.getQuery(Progress.class);
+        queryProgressEntries.whereEqualTo(Progress.KEY_USER, ParseUser.getCurrentUser());
+        queryProgressEntries.whereEqualTo(Progress.KEY_HABIT, habit);
+        queryProgressEntries.setLimit(1000);
+        queryProgressEntries.addAscendingOrder(Progress.KEY_DATE);
+        queryProgressEntries.include(Progress.KEY_USER);
+        queryProgressEntries.include(Progress.KEY_HABIT);
+        queryProgressEntries.findInBackground(new FindCallback<Progress>() {
+            @Override
+            public void done(List<Progress> progressList, ParseException e) {
+                if (e != null) {
+                    Log.e(TAG, "Error retrieving all progress entries for this habit");
+                }
+                Log.d(TAG, "Successfully retrieved all progress entries for this habit");
+                Map<String, Double> dateToProgress = new HashMap<>();
+                for (Progress progress : progressList) {
+                    dateToProgress.put(progress.getDate(), progress.getPctCompleted());
+                }
+                ParseQuery<OverallProgress> queryOverallProgress = ParseQuery.getQuery(OverallProgress.class);
+                queryOverallProgress.whereEqualTo(Progress.KEY_USER, ParseUser.getCurrentUser());
+                queryOverallProgress.setLimit(1000);
+                queryOverallProgress.addAscendingOrder(Progress.KEY_DATE);
+                queryOverallProgress.findInBackground(new FindCallback<OverallProgress>() {
+                    @Override
+                    public void done(List<OverallProgress> overallProgressList, ParseException e) {
+                        if (e != null) {
+                            Log.e(TAG, "Error retrieving all OverallProgress entries");
+                        }
+                        Log.d(TAG, "Successfully retrieved all OverallProgress entries");
+                        for (OverallProgress overallProgress : overallProgressList) {
+                            String date = overallProgress.getDate();
+                            if (dateToProgress.keySet().contains(date)) {
+                                int numHabits = overallProgress.getNumHabits();
+                                double totalProgress = overallProgress.getOverallPct();
+                                double thisProgress = dateToProgress.get(date);
+                                double updatedProgress = (totalProgress * numHabits - thisProgress) / (numHabits - 1);
+                                overallProgress.setOverallPct(updatedProgress);
+                                overallProgress.setNumHabits(numHabits-1);
+                            }
+                        }
+                        ParseObject.saveAllInBackground(overallProgressList, new SaveCallback() {
+                            @Override
+                            public void done(ParseException e) {
+                                if (e != null) {
+                                    Log.e(TAG, "Error saving updated OverallProgress entries");
+                                }
+                                Log.d(TAG, "Successfully saved updated OverallProgress entries");
+                            }
+                        });
+                    }
+                });
+                ParseObject.deleteAllInBackground(progressList, new DeleteCallback() {
+                    @Override
+                    public void done(ParseException e) {
+                        if (e != null) {
+                            Log.e(TAG, "Error deleting all progress entries for this habit");
+                        }
+                        Log.d(TAG, "Successfully deleted all progress entries for this habit");
+                    }
+                });
+                try {
+                    ParseObject.deleteAll(Arrays.asList(habit));
+                    habits.remove(position);
+                    ((MainActivity)getActivity()).setHabitList(habits);
+                } catch (ParseException parseException) {
+                    Log.e(TAG, "Error deleting habit");
+                    parseException.printStackTrace();
+                }
+            }
+        });
+
+    }
+
 }

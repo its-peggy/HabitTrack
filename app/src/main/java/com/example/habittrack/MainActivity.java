@@ -130,10 +130,10 @@ public class MainActivity extends AppCompatActivity {
                     for (Progress progress : progressList) {
                         String date = progress.getDate();
                         if (!dateToTotalProgressPct.containsKey(date)) {
-                            dateToTotalProgressPct.put(date, progress.getPctCompleted() / 100);
+                            dateToTotalProgressPct.put(date, progress.getPctCompleted());
                         } else {
                             double currentTotalPct = dateToTotalProgressPct.get(date);
-                            dateToTotalProgressPct.put(date, currentTotalPct + progress.getPctCompleted() / 100);
+                            dateToTotalProgressPct.put(date, currentTotalPct + progress.getPctCompleted());
                         }
                         if (!dateToProgressCount.containsKey(date)) {
                             dateToProgressCount.put(date, 1);
@@ -178,12 +178,12 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == 123) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED
                     && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
-                Log.d(TAG, "location permissions granted");
+                Log.d(TAG, "Location permissions granted");
                 addGeofenceForLocation(Location.getLocationObjectByName("Home"));
                 addGeofences();
             } else {
-                Log.e(TAG, "user did not grant location permissions");
-                Toast.makeText(this, "user did not grant location permissions", Toast.LENGTH_LONG).show();
+                Log.e(TAG, "User did not grant location permissions");
+                Toast.makeText(this, "User did not grant location permissions", Toast.LENGTH_LONG).show();
                 return;
             }
         }
@@ -299,7 +299,7 @@ public class MainActivity extends AppCompatActivity {
 
         if ((ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
                 || (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED)) {
-            Log.e(TAG, "location permissions not granted");
+            Log.e(TAG, "Location permissions not granted");
             ActivityCompat.requestPermissions(activity,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION,
                             Manifest.permission.ACCESS_BACKGROUND_LOCATION},
@@ -310,13 +310,13 @@ public class MainActivity extends AppCompatActivity {
                 .addOnSuccessListener(this, new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Log.d(TAG, "geofences added successfully");
+                        Log.d(TAG, "Geofences added successfully");
                     }
                 })
                 .addOnFailureListener(this, new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.e(TAG, "failure to add geofences", e);
+                        Log.e(TAG, "Failure to add geofences", e);
                     }
                 });
     }

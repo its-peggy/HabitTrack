@@ -28,4 +28,8 @@
         <item>Education</item>
         <item>Productivity</item>
     </string-array>
+
+    <string name="delete_dialog_title">Delete habit?</string>
+
+    <string name="delete_dialog_message">Deleting this habit also deletes all progress history.</string>
 </resources>

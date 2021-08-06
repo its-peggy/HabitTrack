@@ -52,7 +52,7 @@
 
     <TextView
         android:id="@+id/tvPopupProgress"
-        android:layout_width="87dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/sbProgress"
         android:layout_centerHorizontal="true"
