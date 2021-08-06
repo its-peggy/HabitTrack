@@ -37,6 +37,7 @@ import com.example.habittrack.models.Progress;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
+import com.google.android.material.textfield.TextInputLayout;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseUser;
@@ -67,9 +68,9 @@ public class CreateFragment extends Fragment {
     private OverallProgress todayOverallProgress;
     private Context context;
 
-    private EditText etCreateHabitName;
-    private EditText etCreateHabitGoalQty;
-    private EditText etCreateHabitUnits;
+    private TextInputLayout etCreateHabitName;
+    private TextInputLayout etCreateHabitGoalQty;
+    private TextInputLayout etCreateHabitUnits;
     private TimePicker tpCreateReminderTime;
     private Button btnCreateHabit;
     private ImageButton ibIconButton;
@@ -181,17 +182,17 @@ public class CreateFragment extends Fragment {
 
                 int requestCode = (int) (System.currentTimeMillis() % Integer.MAX_VALUE);
 
-                String habitName = etCreateHabitName.getText().toString();
-                String habitGoalQtyString = etCreateHabitGoalQty.getText().toString();
+                String habitName = etCreateHabitName.getEditText().getText().toString();
+                String habitGoalQtyString = etCreateHabitGoalQty.getEditText().getText().toString();
                 int habitGoalQty = 0;
                 if (!habitGoalQtyString.isEmpty()) {
-                    habitGoalQty = Integer.parseInt(etCreateHabitGoalQty.getText().toString());
+                    habitGoalQty = Integer.parseInt(etCreateHabitGoalQty.getEditText().getText().toString());
                 }
                 else {
                     Toast.makeText(getContext(), "Please enter a value for all fields", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                String habitUnits = etCreateHabitUnits.getText().toString();
+                String habitUnits = etCreateHabitUnits.getEditText().getText().toString();
 
                 int checkedChipTimeOfDayId = chipGroupTimeOfDay.getCheckedChipId();
                 Chip checkedChipTimeOfDay = view.findViewById(checkedChipTimeOfDayId);

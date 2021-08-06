@@ -44,6 +44,7 @@ import com.example.habittrack.models.Progress;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
+import com.google.android.material.textfield.TextInputLayout;
 import com.parse.DeleteCallback;
 import com.parse.FindCallback;
 import com.parse.GetDataCallback;
@@ -79,9 +80,9 @@ public class HabitDetailFragment extends Fragment {
 
     private Context context;
 
-    private EditText etDetailHabitName;
-    private EditText etDetailHabitGoalQty;
-    private EditText etDetailHabitUnits;
+    private TextInputLayout etDetailHabitName;
+    private TextInputLayout etDetailHabitGoalQty;
+    private TextInputLayout etDetailHabitUnits;
     private TimePicker tpDetailReminderTime;
     private Button btnDetailSaveHabit;
     private Button btnDeleteHabit;
@@ -92,10 +93,6 @@ public class HabitDetailFragment extends Fragment {
     private ChipGroup chipGroupRepeat;
     private ChipGroup chipGroupReminderType;
     private ChipGroup chipGroupLocations;
-
-    private PopupWindow popupWindow;
-    private Button btnPopupCancel;
-    private Button btnPopupDeleteHabit;
 
     public HabitDetailFragment() { }
 
@@ -128,7 +125,6 @@ public class HabitDetailFragment extends Fragment {
         etDetailHabitUnits = view.findViewById(R.id.etDetailHabitUnits);
         tpDetailReminderTime = view.findViewById(R.id.tpDetailReminderTime);
         btnDetailSaveHabit = view.findViewById(R.id.btnDetailSaveHabit);
-        btnDeleteHabit = view.findViewById(R.id.btnDeleteHabit);
         ibDetailIconButton = view.findViewById(R.id.ibDetailIconButton);
 
         chipGroupTimeOfDay = view.findViewById(R.id.chipGroupTimeOfDay);
@@ -137,9 +133,9 @@ public class HabitDetailFragment extends Fragment {
         chipGroupReminderType = view.findViewById(R.id.chipGroupReminderType);
         chipGroupLocations = view.findViewById(R.id.chipGroupLocations);
 
-        etDetailHabitName.setText(habit.getName());
-        etDetailHabitGoalQty.setText(Integer.toString(habit.getQtyGoal()));
-        etDetailHabitUnits.setText(habit.getUnit());
+        etDetailHabitName.getEditText().setText(habit.getName());
+        etDetailHabitGoalQty.getEditText().setText(Integer.toString(habit.getQtyGoal()));
+        etDetailHabitUnits.getEditText().setText(habit.getUnit());
 
         for (int i = 0; i < chipGroupLocations.getChildCount(); i++) {
             Chip chip = (Chip) chipGroupLocations.getChildAt(i);
@@ -255,9 +251,9 @@ public class HabitDetailFragment extends Fragment {
                 byte[] iconByteArray = stream.toByteArray();
                 ParseFile icon = new ParseFile("icon.png", iconByteArray);
 
-                String habitName = etDetailHabitName.getText().toString();
-                int habitGoalQty = Integer.parseInt(etDetailHabitGoalQty.getText().toString());
-                String habitUnits = etDetailHabitUnits.getText().toString();
+                String habitName = etDetailHabitName.getEditText().getText().toString();
+                int habitGoalQty = Integer.parseInt(etDetailHabitGoalQty.getEditText().getText().toString());
+                String habitUnits = etDetailHabitUnits.getEditText().getText().toString();
 
                 int checkedChipTimeOfDayId = chipGroupTimeOfDay.getCheckedChipId();
                 Chip checkedChipTimeOfDay = view.findViewById(checkedChipTimeOfDayId);
