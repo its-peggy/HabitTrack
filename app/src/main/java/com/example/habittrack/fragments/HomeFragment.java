@@ -31,6 +31,7 @@ import com.example.habittrack.MainActivity;
 import com.example.habittrack.models.Habit;
 import com.example.habittrack.HabitsAdapter;
 import com.example.habittrack.R;
+import com.example.habittrack.models.OverallProgress;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.color.MaterialColors;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -49,6 +50,7 @@ public class HomeFragment extends Fragment {
     protected FloatingActionButton fabNewHabit;
     protected HabitsAdapter adapter;
     protected List<Habit> habits;
+    protected List<OverallProgress> overallProgressList;
 
     public HomeFragment() { }
 
@@ -57,6 +59,7 @@ public class HomeFragment extends Fragment {
         super.onCreate(savedInstanceState);
         context = getContext();
         habits = ((MainActivity)getActivity()).getHabitList();
+        overallProgressList = ((MainActivity)getActivity()).getOverallProgressList();
     }
 
     @Override
@@ -73,7 +76,7 @@ public class HomeFragment extends Fragment {
         fabNewHabit = view.findViewById(R.id.fabNewHabit);
 
         rvHabits = view.findViewById(R.id.rvHabits);
-        adapter = new HabitsAdapter(context, habits);
+        adapter = new HabitsAdapter(context, habits, overallProgressList);
         rvHabits.setAdapter(adapter);
         rvHabits.setLayoutManager(new LinearLayoutManager(context));
 

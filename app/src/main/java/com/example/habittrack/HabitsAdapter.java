@@ -26,6 +26,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.example.habittrack.fragments.HabitDetailFragment;
 import com.example.habittrack.models.Habit;
+import com.example.habittrack.models.OverallProgress;
 import com.example.habittrack.models.Progress;
 import com.parse.FindCallback;
 import com.parse.ParseException;
@@ -53,6 +54,7 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private static final int SECTION_HEADER_VIEW = 2;
     private Context context;
     private List<Habit> habits;
+    private List<OverallProgress> overallProgressList;
 
     private static final List<String> TIME_OF_DAY_SECTIONS = Arrays.asList("All day", "Morning", "Noon", "Afternoon", "Evening", "Night");
     private static final List<String> TAG_SECTIONS = Arrays.asList("Education", "Exercise", "Health", "Personal", "Productivity");
@@ -83,9 +85,10 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         sortTypeToSectionNames.put(3, STATUS_SECTIONS);
     }
 
-    public HabitsAdapter(Context context, List<Habit> habits) {
+    public HabitsAdapter(Context context, List<Habit> habits, List<OverallProgress> overallProgressList) {
         this.context = context;
         this.habits = habits;
+        this.overallProgressList = overallProgressList;
     }
 
     @NonNull
@@ -254,15 +257,37 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     btnSaveProgress.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            int newProgress = sbProgress.getProgress();
+                            int newProgressAmt = sbProgress.getProgress();
                             Progress progress = mHabit.getTodayProgress();
-                            int goal = progress.getQtyGoal();
-                            progress.setQtyCompleted(newProgress);
-                            progress.setPctCompleted(100 * (double) newProgress / goal);
-                            progress.setCompleted(newProgress == goal);
+                            int delta = newProgressAmt - progress.getQtyCompleted();
+                            int goalAmt = progress.getQtyGoal();
+                            double newPctCompleted = (double) newProgressAmt / goalAmt;
+
+                            OverallProgress todayOverallProgress = overallProgressList.get(overallProgressList.size()-1);
+                            double current = todayOverallProgress.getOverallPct();
+                            int numHabits = todayOverallProgress.getNumHabits();
+                            double newPct = current + ((double) delta / goalAmt) / numHabits;
+                            todayOverallProgress.setOverallPct(newPct);
+                            todayOverallProgress.saveInBackground(new SaveCallback() {
+                                @Override
+                                public void done(ParseException e) {
+                                    if (e != null) {
+                                        Log.e(TAG, "Error saving updated OverallProgress entry for today");
+                                    }
+                                    Log.d(TAG, "Successfully saved updated OverallProgress entry fort today");
+                                }
+                            });
+
+                            progress.setQtyCompleted(newProgressAmt);
+                            progress.setPctCompleted(newPctCompleted);
+                            progress.setCompleted(newProgressAmt == goalAmt);
                             progress.saveInBackground(new SaveCallback() {
                                 @Override
                                 public void done(ParseException e) {
+                                    if (e != null) {
+                                        Log.e(TAG, "Error saving updated Progress entry for today");
+                                    }
+                                    Log.d(TAG, "Successfully saved updated Progress entry fort today");
                                     notifyItemChanged(habitPosition);
                                 }
                             });
@@ -286,7 +311,6 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                             .replace(R.id.flContainer, habitDetailFragment, "findThisFragment")
                             .addToBackStack(null)
                             .commit();
-
                 }
 
                 @Override
@@ -296,9 +320,30 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     progress.setQtyCompleted(qtyGoal);
                     progress.setCompleted(true);
                     progress.setPctCompleted(1);
+
+                    OverallProgress todayOverallProgress = overallProgressList.get(overallProgressList.size()-1);
+                    int delta = qtyGoal - progress.getQtyCompleted();
+                    double current = todayOverallProgress.getOverallPct();
+                    int numHabits = todayOverallProgress.getNumHabits();
+                    double newPct = current + ((double) delta / qtyGoal) / numHabits;
+                    todayOverallProgress.setOverallPct(newPct);
+                    todayOverallProgress.saveInBackground(new SaveCallback() {
+                        @Override
+                        public void done(ParseException e) {
+                            if (e != null) {
+                                Log.e(TAG, "Error saving updated OverallProgress entry for today");
+                            }
+                            Log.d(TAG, "Successfully saved updated OverallProgress entry for ttoday");
+                        }
+                    });
+
                     progress.saveInBackground(new SaveCallback() {
                         @Override
                         public void done(ParseException e) {
+                            if (e != null) {
+                                Log.e(TAG, "Error saving updated Progress entry for today");
+                            }
+                            Log.d(TAG, "Successfully saved updated Progress entry for today");
                             notifyItemChanged(habitPosition);
                         }
                     });

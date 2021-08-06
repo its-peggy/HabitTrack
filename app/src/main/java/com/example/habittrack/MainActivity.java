@@ -58,6 +58,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -72,8 +73,8 @@ public class MainActivity extends AppCompatActivity {
     List<Habit> habitList = new ArrayList<>();
     List<OverallProgress> overallProgressList = new ArrayList<>();
 
-    private Map<String, Double> dateToTotalProgressPct = new HashMap<>();
-    private Map<String, Integer> dateToProgressCount = new HashMap<>();
+    private Map<String, Double> dateToTotalProgressPct = new TreeMap<>();
+    private Map<String, Integer> dateToProgressCount = new TreeMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,6 +121,7 @@ public class MainActivity extends AppCompatActivity {
             ParseQuery<Progress> queryProgressEntries = ParseQuery.getQuery(Progress.class);
             queryProgressEntries.whereEqualTo(Progress.KEY_USER, ParseUser.getCurrentUser());
             queryProgressEntries.setLimit(1000);
+            queryProgressEntries.addAscendingOrder(Progress.KEY_DATE);
             queryProgressEntries.include(Progress.KEY_USER);
             queryProgressEntries.include(Progress.KEY_HABIT);
             queryProgressEntries.findInBackground(new FindCallback<Progress>() {

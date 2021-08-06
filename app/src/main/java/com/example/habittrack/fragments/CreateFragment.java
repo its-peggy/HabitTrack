@@ -32,6 +32,7 @@ import com.example.habittrack.IconsAdapter;
 import com.example.habittrack.MainActivity;
 import com.example.habittrack.models.Habit;
 import com.example.habittrack.models.Location;
+import com.example.habittrack.models.OverallProgress;
 import com.example.habittrack.models.Progress;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.chip.Chip;
@@ -62,6 +63,8 @@ public class CreateFragment extends Fragment {
     public static final String TAG = "CreateFragment";
 
     private List<Habit> habits;
+    private List<OverallProgress> overallProgressList;
+    private OverallProgress todayOverallProgress;
     private Context context;
 
     private EditText etCreateHabitName;
@@ -84,6 +87,8 @@ public class CreateFragment extends Fragment {
         super.onCreate(savedInstanceState);
         context = getContext();
         habits = ((MainActivity)getActivity()).getHabitList();
+        overallProgressList = ((MainActivity)getActivity()).getOverallProgressList();
+        todayOverallProgress = overallProgressList.get(overallProgressList.size()-1);
     }
 
     @Override
@@ -146,7 +151,6 @@ public class CreateFragment extends Fragment {
                 gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        // Toast.makeText(getContext(), "icon at position " + position + " clicked", Toast.LENGTH_SHORT).show();
                         lastSelected[0] = position;
                     }
                 });
@@ -157,7 +161,6 @@ public class CreateFragment extends Fragment {
                 btnSaveIcon.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        // Toast.makeText(getContext(), "save button", Toast.LENGTH_SHORT).show();
                         int pos = lastSelected[0]; // TODO: better way to get currently selected position?
                         ibIconButton.setImageBitmap((Bitmap) gridView.getItemAtPosition(pos));
                         popupWindow.dismiss();
@@ -211,7 +214,6 @@ public class CreateFragment extends Fragment {
                 }
 
                 int[] intArrayRepeat = ArrayUtils.toPrimitive(repeatOnDays.toArray(new Integer[repeatOnDays.size()]));
-
 
                 if (habitName.isEmpty() || habitUnits.isEmpty()) {
                     Toast.makeText(getContext(), "Please enter a value for all fields", Toast.LENGTH_SHORT).show();
@@ -303,6 +305,21 @@ public class CreateFragment extends Fragment {
                         });
                     }
                 });
+
+                double currentProgress = todayOverallProgress.getOverallPct();
+                int currentNumHabits = todayOverallProgress.getNumHabits();
+                todayOverallProgress.setOverallPct(currentProgress * currentNumHabits / (currentNumHabits+1));
+                todayOverallProgress.setNumHabits(currentNumHabits+1);
+                todayOverallProgress.saveInBackground(new SaveCallback() {
+                    @Override
+                    public void done(ParseException e) {
+                        if (e != null) {
+                            Log.e(TAG, "Error saving updated OverallProgress entry for today");
+                        }
+                        Log.d(TAG, "Successfully saved updated OverallProgress entry for today");
+                    }
+                });
+
             }
         });
     }
