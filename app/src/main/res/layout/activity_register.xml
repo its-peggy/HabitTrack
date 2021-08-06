@@ -6,63 +6,82 @@
     android:layout_height="match_parent"
     tools:context=".RegisterActivity">
 
-    <EditText
-        android:id="@+id/etRegisterFirstName"
-        android:layout_width="150dp"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="false"
-        android:layout_marginStart="51dp"
-        android:layout_marginTop="200dp"
-        android:ems="10"
-        android:hint="first name"
-        android:inputType="textPersonName" />
-
-    <EditText
-        android:id="@+id/etRegisterLastName"
-        android:layout_width="150dp"
+    <TextView
+        android:id="@+id/tvAppName"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="200dp"
-        android:layout_marginEnd="51dp"
-        android:layout_toEndOf="@+id/etRegisterFirstName"
-        android:ems="10"
-        android:hint="last name"
-        android:inputType="textPersonName" />
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="120dp"
+        android:fontFamily="@font/lemon"
+        android:text="HabitTrack"
+        android:textColor="#333333"
+        android:textSize="36sp"
+        tools:text="HabitTrack" />
 
-    <EditText
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/etRegisterName"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="40dp"
+        android:layout_marginTop="60dp"
+        android:layout_marginRight="40dp"
+        android:layout_below="@id/tvAppName"
+        android:hint="Name">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/etRegisterUsername"
-        android:layout_width="308dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/etRegisterLastName"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="8dp"
-        android:ems="10"
-        android:hint="username"
-        android:inputType="textPersonName" />
+        android:layout_marginLeft="40dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginRight="40dp"
+        android:layout_below="@id/etRegisterName"
+        android:hint="Username"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
-    <EditText
+        <com.google.android.material.textfield.TextInputEditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/etRegisterPassword"
-        android:layout_width="310dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/etRegisterUsername"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="8dp"
-        android:ems="10"
-        android:hint="password"
-        android:inputType="textPassword" />
+        android:layout_marginLeft="40dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginRight="40dp"
+        android:layout_below="@id/etRegisterUsername"
+        android:hint="Password"
+        app:endIconMode="password_toggle"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPassword"
+            />
+
+    </com.google.android.material.textfield.TextInputLayout>
 
     <Button
         android:id="@+id/btnRegister"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="40dp"
+        android:layout_marginRight="40dp"
         android:layout_below="@+id/etRegisterPassword"
-        android:layout_alignParentBottom="false"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="297dp"
-        android:text="sign up" />
+        android:layout_marginTop="8dp"
+        android:text="Sign Up" />
 </RelativeLayout>

@@ -13,9 +13,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import com.example.habittrack.LoginActivity;
 import com.example.habittrack.MainActivity;
 import com.example.habittrack.R;
-import com.example.habittrack.StartActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.parse.ParseUser;
 
@@ -53,7 +53,7 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 ParseUser.logOut();
-                Intent i = new Intent(getActivity(), StartActivity.class);
+                Intent i = new Intent(getActivity(), LoginActivity.class);
                 startActivity(i);
             }
         });

@@ -6,38 +6,86 @@
     android:layout_height="match_parent"
     tools:context=".LoginActivity">
 
-    <EditText
-        android:id="@+id/etLoginUsername"
-        android:layout_width="268dp"
+    <TextView
+        android:id="@+id/tvAppName"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="164dp"
-        android:ems="10"
-        android:hint="username"
-        android:inputType="textPersonName"
-        app:layout_constraintEnd_toEndOf="parent"
-        tools:layout_editor_absoluteY="128dp" />
+        android:layout_marginTop="120dp"
+        android:fontFamily="@font/lemon"
+        android:text="HabitTrack"
+        android:textColor="#333333"
+        android:textSize="36sp"
+        tools:text="HabitTrack" />
 
-    <EditText
-        android:id="@+id/etLoginPassword"
-        android:layout_width="268dp"
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/etLoginUsername"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/etLoginUsername"
-        android:layout_alignParentStart="false"
-        android:layout_centerHorizontal="true"
+        android:layout_marginLeft="40dp"
+        android:layout_marginTop="60dp"
+        android:layout_marginRight="40dp"
+        android:layout_below="@id/tvAppName"
+        android:hint="Username">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/etLoginPassword"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="40dp"
         android:layout_marginTop="4dp"
-        android:ems="10"
-        android:hint="password"
-        android:inputType="textPassword"
-        tools:layout_editor_absoluteY="195dp" />
+        android:layout_marginRight="40dp"
+        android:layout_below="@id/etLoginUsername"
+        android:hint="Password"
+        app:endIconMode="password_toggle"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPassword"
+            />
+
+    </com.google.android.material.textfield.TextInputLayout>
 
     <Button
         android:id="@+id/btnLogin"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="40dp"
+        android:layout_marginRight="40dp"
         android:layout_below="@+id/etLoginPassword"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="61dp"
+        android:layout_marginTop="8dp"
         android:text="Log In" />
+
+    <View
+        android:id="@+id/viewHorizontalSeparator"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@id/btnLogin"
+        android:layout_marginLeft="130dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginRight="130dp"
+        android:background="#B1B1B1" />
+
+    <TextView
+        android:id="@+id/tvRegister"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/viewHorizontalSeparator"
+        android:layout_marginTop="24dp"
+        android:text="Don't have an account? Sign up"
+        android:textColor="#333333"
+        tools:text="Don't have an account? Sign up" />
+
 </RelativeLayout>
