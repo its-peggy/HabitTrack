@@ -15,7 +15,7 @@
         android:layout_marginTop="120dp"
         android:fontFamily="@font/lemon"
         android:text="HabitTrack"
-        android:textColor="#333333"
+        android:textColor="@color/dark_grey"
         android:textSize="36sp"
         tools:text="HabitTrack" />
 
@@ -86,9 +86,10 @@
         android:id="@+id/tvRegister"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
         android:layout_below="@id/viewHorizontalSeparator"
+        android:layout_centerHorizontal="true"
         android:layout_marginTop="24dp"
+        android:fontFamily="@font/athiti"
         android:text="Don't have an account? Sign up"
         android:textColor="#333333"
         tools:text="Don't have an account? Sign up" />

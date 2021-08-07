@@ -4,17 +4,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingBottom="4dp">
+    android:paddingBottom="6dp">
 
     <ImageView
         android:id="@+id/ivIcon"
         android:layout_width="36sp"
         android:layout_height="34dp"
         android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
+        android:layout_alignParentTop="false"
         android:layout_centerVertical="true"
-        android:layout_marginStart="13dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginStart="14dp"
         tools:srcCompat="@tools:sample/avatars" />
 
     <TextView
@@ -22,12 +21,12 @@
         android:layout_width="246dp"
         android:layout_height="21dp"
         android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
         android:layout_marginStart="12dp"
-        android:layout_marginTop="23dp"
-        android:layout_marginEnd="13dp"
+        android:layout_marginTop="5dp"
         android:layout_toStartOf="@+id/tvAmount"
         android:layout_toEndOf="@+id/ivIcon"
+        android:fontFamily="@font/athiti"
+        android:textColor="@color/dark_grey"
         android:textSize="16sp"
         tools:text="Drink water" />
 
@@ -37,74 +36,34 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
-        android:layout_marginTop="25dp"
-        android:layout_marginEnd="18dp"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="16dp"
+        android:fontFamily="@font/athiti"
+        android:textColor="@color/dark_grey"
         tools:text="40/64 oz" />
 
     <ImageView
-        android:id="@+id/ivTimeOfDay"
-        android:layout_width="12dp"
-        android:layout_height="12dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentBottom="false"
-        android:layout_marginStart="12dp"
-        android:layout_marginTop="8dp"
-        android:layout_toEndOf="@+id/ivIcon"
-        app:srcCompat="@drawable/ic_fi_rr_clock" />
-
-    <TextView
-        android:id="@+id/tvTimeOfDay"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_marginStart="4dp"
-        android:layout_marginTop="6dp"
-        android:layout_toEndOf="@+id/ivTimeOfDay"
-        android:textSize="10sp"
-        tools:text="All day" />
-
-    <TextView
-        android:id="@+id/tvRemind"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_marginStart="4dp"
-        android:layout_marginTop="6dp"
-        android:layout_toEndOf="@+id/ivRemind"
-        android:textSize="10sp"
-        tools:text="9:00 AM" />
-
-    <ImageView
-        android:id="@+id/ivRemind"
-        android:layout_width="12dp"
-        android:layout_height="12dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="false"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
-        android:layout_toEndOf="@+id/tvTimeOfDay"
-        app:srcCompat="@drawable/ic_fi_rr_bell_ring" />
-
-    <ImageView
-        android:id="@+id/ivTag"
+        android:id="@+id/ivStreak"
         android:layout_width="12dp"
         android:layout_height="12dp"
         android:layout_below="@+id/tvHabitName"
         android:layout_marginStart="12dp"
-        android:layout_marginTop="6dp"
+        android:layout_marginTop="5dp"
         android:layout_toEndOf="@+id/ivIcon"
-        app:srcCompat="@drawable/ic_fi_rr_label" />
+        app:srcCompat="@drawable/ic_fi_rr_flame" />
 
     <TextView
-        android:id="@+id/tvTag"
+        android:id="@+id/tvStreak"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/tvHabitName"
         android:layout_alignParentEnd="false"
         android:layout_marginStart="4dp"
         android:layout_marginTop="4dp"
-        android:layout_toEndOf="@+id/ivTag"
+        android:layout_toEndOf="@+id/ivStreak"
+        android:fontFamily="@font/athiti"
+        android:textColor="@color/dark_grey"
         android:textSize="10sp"
-        tools:text="Health" />
+        tools:text="3 days" />
 
 </RelativeLayout>

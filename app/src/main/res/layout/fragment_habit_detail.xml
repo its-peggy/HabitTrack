@@ -113,6 +113,7 @@
         android:layout_below="@+id/chipGroupReminderType"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="4dp"
+        android:forceDarkAllowed="false"
         android:timePickerMode="spinner" />
 
     <HorizontalScrollView

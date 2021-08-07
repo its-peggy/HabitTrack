@@ -6,17 +6,13 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.GestureDetector;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.PopupWindow;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -28,7 +24,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.example.habittrack.fragments.HabitDetailFragment;
-import com.example.habittrack.fragments.HomeFragment;
 import com.example.habittrack.models.Habit;
 import com.example.habittrack.models.OverallProgress;
 import com.example.habittrack.models.Progress;
@@ -183,9 +178,7 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         private ImageView ivIcon;
         private TextView tvHabitName;
         private TextView tvAmount;
-        private TextView tvTimeOfDay;
-        private TextView tvRemind;
-        private TextView tvTag;
+        private TextView tvStreak;
 
         private Habit mHabit;
 
@@ -199,9 +192,7 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             ivIcon = itemView.findViewById(R.id.ivIcon);
             tvHabitName = itemView.findViewById(R.id.tvHabitName);
             tvAmount = itemView.findViewById(R.id.tvAmount);
-            tvTimeOfDay = itemView.findViewById(R.id.tvTimeOfDay);
-            tvRemind = itemView.findViewById(R.id.tvRemind);
-            tvTag = itemView.findViewById(R.id.tvTag);
+            tvStreak = itemView.findViewById(R.id.tvStreak);
 
             GestureDetector gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
                 @Override
@@ -372,18 +363,13 @@ public class HabitsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             String qtyCompletedToday = String.valueOf(habit.getTodayProgress().getQtyCompleted());
             String fractionDone = qtyCompletedToday + "/" + habit.getQtyGoal() + " " + habit.getUnit();
             tvAmount.setText(fractionDone);
-            tvTimeOfDay.setText(habit.getTimeOfDay());
-            if (habit.getRemindAtLocation() != null) {
-                // TODO: change icon to map pin if location reminder
-                tvRemind.setText(habit.getRemindAtLocation().getName());
+            String streakText;
+            if (habit.getStreak() == 1) {
+                streakText = "1 day";
+            } else {
+                streakText = habit.getStreak() + " days";
             }
-            else {
-                Date remindTime = habit.getRemindAtTime();
-                LocalDateTime localDateTime = convertToLocalDateTime(remindTime);
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("h:mm a");
-                tvRemind.setText(formatter.format(localDateTime));
-            }
-            tvTag.setText(habit.getTag());
+            tvStreak.setText(streakText);
         }
 
     }

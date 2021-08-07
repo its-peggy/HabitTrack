@@ -12,11 +12,13 @@
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:layout_centerVertical="true"
+        android:layout_centerVertical="false"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="17dp"
+        android:layout_marginTop="12dp"
+        android:fontFamily="@font/athiti"
         android:text="Today's Habits"
-        android:textSize="18sp" />
+        android:textColor="@color/dark_grey"
+        android:textSize="22sp" />
 
     <TextView
         android:id="@+id/tvHeaderDate"
@@ -25,8 +27,9 @@
         android:layout_below="@+id/tvTodaysHabits"
         android:layout_alignParentStart="true"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
-        android:textSize="12sp"
+        android:layout_marginTop="0dp"
+        android:fontFamily="@font/athiti"
+        android:textSize="13sp"
         tools:text="Wednesday, July 14, 2021" />
 
     <Spinner
