@@ -1,8 +1,10 @@
 package com.example.habittrack.fragments;
 
 import android.app.AlarmManager;
+import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -24,6 +26,7 @@ import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.PopupWindow;
+import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -140,13 +143,15 @@ public class CreateFragment extends Fragment {
         ibIconButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                LayoutInflater layoutInflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                ViewGroup container = (ViewGroup) layoutInflater.inflate(R.layout.popup_icon_selection_window, null);
+                LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                View iconPickerLayout = layoutInflater.inflate(R.layout.popup_icon_selection_window, null);
+                GridView gridView = iconPickerLayout.findViewById(R.id.gridView);
 
-                GridView gridView = (GridView) container.findViewById(R.id.gridView);
-                Button btnSaveIcon = (Button) container.findViewById(R.id.btnSaveIcon);
+                builder.setTitle("Choose an icon");
+                builder.setView(iconPickerLayout);
 
-                gridView.setAdapter(new IconsAdapter(getContext()));
+                gridView.setAdapter(new IconsAdapter(context));
                 final int[] lastSelected = {0};
 
                 gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -156,17 +161,22 @@ public class CreateFragment extends Fragment {
                     }
                 });
 
-                PopupWindow popupWindow = new PopupWindow(container, 800, 800, true);
-                popupWindow.showAtLocation(v, Gravity.CENTER, 0, 0);
-
-                btnSaveIcon.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        int pos = lastSelected[0]; // TODO: better way to get currently selected position?
+                builder.setPositiveButton("Save", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        int pos = lastSelected[0];
                         ibIconButton.setImageBitmap((Bitmap) gridView.getItemAtPosition(pos));
-                        popupWindow.dismiss();
+                        dialog.dismiss();
                     }
                 });
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+
+                AlertDialog dialog = builder.create();
+                dialog.show();
             }
         });
 
