@@ -82,9 +82,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="false"
+        android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="32dp"
+        android:layout_centerHorizontal="false"
+        android:layout_marginRight="42dp"
+        android:layout_marginBottom="30dp"
         android:text="Create habit" />
 
     <ImageButton
@@ -452,5 +454,15 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="28dp"
         android:text="Repeat:" />
+
+    <Button
+        android:id="@+id/btnDeleteHabit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="42dp"
+        android:layout_marginBottom="30dp"
+        android:text="Delete Habit" />
 
 </RelativeLayout>

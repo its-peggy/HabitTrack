@@ -125,6 +125,7 @@ public class HabitDetailFragment extends Fragment {
         etDetailHabitUnits = view.findViewById(R.id.etDetailHabitUnits);
         tpDetailReminderTime = view.findViewById(R.id.tpDetailReminderTime);
         btnDetailSaveHabit = view.findViewById(R.id.btnDetailSaveHabit);
+        btnDeleteHabit = view.findViewById(R.id.btnDeleteHabit);
         ibDetailIconButton = view.findViewById(R.id.ibDetailIconButton);
 
         chipGroupTimeOfDay = view.findViewById(R.id.chipGroupTimeOfDay);
