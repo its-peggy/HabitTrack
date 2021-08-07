@@ -37,6 +37,7 @@ import com.google.android.material.color.MaterialColors;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.transition.MaterialArcMotion;
 import com.google.android.material.transition.MaterialContainerTransform;
+import com.google.android.material.transition.MaterialFadeThrough;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,6 +61,8 @@ public class HomeFragment extends Fragment {
         context = getContext();
         habits = ((MainActivity)getActivity()).getHabitList();
         overallProgressList = ((MainActivity)getActivity()).getOverallProgressList();
+        setEnterTransition(new MaterialFadeThrough());
+        setExitTransition(new MaterialFadeThrough());
     }
 
     @Override

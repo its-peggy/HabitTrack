@@ -45,6 +45,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.android.material.transition.MaterialFadeThrough;
 import com.parse.DeleteCallback;
 import com.parse.FindCallback;
 import com.parse.GetDataCallback;
@@ -109,6 +110,9 @@ public class HabitDetailFragment extends Fragment {
         position = bundle.getInt("Position");
         habit = habits.get(position);
         progress = habit.getTodayProgress();
+
+        setEnterTransition(new MaterialFadeThrough());
+        setExitTransition(new MaterialFadeThrough());
     }
 
     @Override
@@ -367,11 +371,7 @@ public class HabitDetailFragment extends Fragment {
                     public void onClick(DialogInterface dialog, int id) {
                         deleteHabit();
                         dialog.dismiss();
-                        HomeFragment homeFragment = new HomeFragment();
-                        getActivity().getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.flContainer, homeFragment, "findThisFragment")
-                                .addToBackStack(null)
-                                .commit();
+
                     }
                 });
                 builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -437,6 +437,11 @@ public class HabitDetailFragment extends Fragment {
                                     Log.e(TAG, "Error saving updated OverallProgress entries");
                                 }
                                 Log.d(TAG, "Successfully saved updated OverallProgress entries");
+                                HomeFragment homeFragment = new HomeFragment();
+                                getActivity().getSupportFragmentManager().beginTransaction()
+                                        .replace(R.id.flContainer, homeFragment, "findThisFragment")
+                                        .addToBackStack(null)
+                                        .commit();
                             }
                         });
                     }

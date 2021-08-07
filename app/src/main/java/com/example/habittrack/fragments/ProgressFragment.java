@@ -34,6 +34,7 @@ import com.example.habittrack.models.Habit;
 import com.example.habittrack.models.OverallProgress;
 import com.example.habittrack.models.Progress;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.transition.MaterialFadeThrough;
 import com.kizitonwose.calendarview.CalendarView;
 import com.kizitonwose.calendarview.model.CalendarDay;
 import com.kizitonwose.calendarview.model.CalendarMonth;
@@ -96,6 +97,8 @@ public class ProgressFragment extends Fragment {
             }
         }
         LocalBroadcastManager.getInstance(context).registerReceiver(broadcastReceiver, new IntentFilter("habits-progress-specific-day"));
+        setEnterTransition(new MaterialFadeThrough());
+        setExitTransition(new MaterialFadeThrough());
     }
 
     @Override

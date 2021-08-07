@@ -41,6 +41,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.android.material.transition.MaterialFadeThrough;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseUser;
@@ -93,6 +94,7 @@ public class CreateFragment extends Fragment {
         habits = ((MainActivity)getActivity()).getHabitList();
         overallProgressList = ((MainActivity)getActivity()).getOverallProgressList();
         todayOverallProgress = overallProgressList.get(overallProgressList.size()-1);
+        setExitTransition(new MaterialFadeThrough());
     }
 
     @Override

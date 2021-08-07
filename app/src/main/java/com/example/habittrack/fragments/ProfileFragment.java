@@ -17,6 +17,7 @@ import com.example.habittrack.LoginActivity;
 import com.example.habittrack.MainActivity;
 import com.example.habittrack.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.transition.MaterialFadeThrough;
 import com.parse.ParseUser;
 
 public class ProfileFragment extends Fragment {
@@ -33,6 +34,8 @@ public class ProfileFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         context = getContext();
+        setEnterTransition(new MaterialFadeThrough());
+        setExitTransition(new MaterialFadeThrough());
     }
 
     @Override
