@@ -23,6 +23,7 @@ import com.example.habittrack.R;
 import com.example.habittrack.models.Location;
 import com.example.habittrack.models.Progress;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.transition.MaterialFadeThrough;
 import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
@@ -66,6 +67,9 @@ public class AddressFragment extends Fragment {
 
         BottomNavigationView bottomNavBar = getActivity().findViewById(R.id.bottomNavigation);
         bottomNavBar.setVisibility(View.GONE);
+
+        setEnterTransition(new MaterialFadeThrough());
+        setExitTransition(new MaterialFadeThrough());
     }
 
     @Override

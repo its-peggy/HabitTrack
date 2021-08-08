@@ -32,6 +32,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        Log.d(TAG, "received");
         if (intent.getAction() == MIDNIGHT_TAG) {
             setNextMidnightAlarm(context);
             Intent midnightService = new Intent(context, MidnightService.class);

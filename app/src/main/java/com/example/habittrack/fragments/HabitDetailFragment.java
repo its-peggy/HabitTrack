@@ -168,6 +168,19 @@ public class HabitDetailFragment extends Fragment {
             }
         }
 
+        chipGroupReminderType.setOnCheckedChangeListener(new ChipGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(ChipGroup group, int checkedId) {
+                if (checkedId == R.id.chipTime) {
+                    tpDetailReminderTime.setVisibility(View.VISIBLE);
+                    chipGroupLocations.setVisibility(View.GONE);
+                } else if (checkedId == R.id.chipLocation) {
+                    tpDetailReminderTime.setVisibility(View.GONE);
+                    chipGroupLocations.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+
         List<Integer> remindOnDays = habit.getRepeatOnDays();
         if (remindOnDays == null) {
             remindOnDays = Arrays.asList(7, 1, 2, 3, 4, 5, 6);
