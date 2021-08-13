@@ -8,7 +8,6 @@ Original App Design Project - README Template
 1. [Product Spec](#Product-Spec)
 1. [Wireframes](#Wireframes)
 2. [Schema](#Schema)
-3. [Further Documentation](#Further-Documentation)
 
 ## Overview
 ### Description
@@ -45,9 +44,9 @@ App that lets you create and categorize daily habits (e.g. drink 8 cups of water
 - [x] Calendar view of habit progress with color gradients indicating progress
 - [x] Can tap on a habit to view a detail screen 
 - [ ] View habit insights - current streak, longest streak, % of days completed, etc.
-- [ ] Custom repeating habits (e.g. not every day, but every other day or every MWF, etc.)
+- [x] Custom repeating habits (e.g. not every day, but every other day or every MWF, etc.)
 - [ ] Support for non-quantity-based habits (e.g. "skip dessert", "pack lunch for work")
-- [ ] Delete habits
+- [x] Delete habits
 
 ### 2. Screen Archetypes
 
@@ -104,10 +103,6 @@ App that lets you create and categorize daily habits (e.g. drink 8 cups of water
 
 ## Wireframes
 [App wireframes (Imgur)](https://imgur.com/a/f90ubTL)
-
-### [BONUS] Digital Wireframes & Mockups
-
-### [BONUS] Interactive Prototype
 
 ## Schema 
 
@@ -168,12 +163,3 @@ App that lets you create and categorize daily habits (e.g. drink 8 cups of water
    * GET: show progress for each day on a selected habit
 * Address management screen
    * POST: create new addresses/locations of interest
-
-- [Create basic snippets for each Parse network request]
-- [OPTIONAL: List endpoints if using existing API such as Yelp]
-
-## Further Documentation
-
-* Added page and section headers to home RecyclerView by implementing multiple View types, dynamic getItemCount, etc.
-* Faciliated querying with pointers, HashMap, and reduced querying with custom comparators. 
-* BroadcastReceivers and AlarmManager to create time and location reminders
