@@ -185,8 +185,10 @@ public class HabitDetailFragment extends Fragment {
         if (remindOnDays == null) {
             remindOnDays = Arrays.asList(7, 1, 2, 3, 4, 5, 6);
         }
-        for (int day : remindOnDays) {
-            chipGroupRepeat.check(chipGroupRepeat.getChildAt(day % 7).getId());
+        for (int day = 1; day <= 7; day++) {
+            if (remindOnDays.contains(day)) {
+                chipGroupRepeat.check(chipGroupRepeat.getChildAt(day % 7).getId());
+            }
         }
 
         boolean timeReminder = (habit.getRemindAtTime() != null);

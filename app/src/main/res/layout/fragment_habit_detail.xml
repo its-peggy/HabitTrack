@@ -278,7 +278,7 @@
             style="@style/Widget.MaterialComponents.Chip.Choice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:checked="true"
+            android:checked="false"
             android:text="S"
             android:textSize="12sp"
             app:chipMinTouchTargetSize="0dp" />
@@ -288,7 +288,7 @@
             style="@style/Widget.MaterialComponents.Chip.Choice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:checked="true"
+            android:checked="false"
             android:text="M"
             android:textSize="12sp"
             app:chipMinTouchTargetSize="0dp" />
@@ -298,7 +298,7 @@
             style="@style/Widget.MaterialComponents.Chip.Choice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:checked="true"
+            android:checked="false"
             android:text="T"
             android:textSize="12sp"
             app:chipMinTouchTargetSize="0dp" />
@@ -308,7 +308,7 @@
             style="@style/Widget.MaterialComponents.Chip.Choice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:checked="true"
+            android:checked="false"
             android:text="W"
             android:textSize="12sp"
             app:chipMinTouchTargetSize="0dp" />
@@ -318,7 +318,7 @@
             style="@style/Widget.MaterialComponents.Chip.Choice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:checked="true"
+            android:checked="false"
             android:text="T"
             android:textSize="12sp"
             app:chipMinTouchTargetSize="0dp" />
@@ -328,7 +328,7 @@
             style="@style/Widget.MaterialComponents.Chip.Choice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:checked="true"
+            android:checked="false"
             android:text="F"
             android:textSize="12sp"
             app:chipMinTouchTargetSize="0dp" />
@@ -338,7 +338,7 @@
             style="@style/Widget.MaterialComponents.Chip.Choice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:checked="true"
+            android:checked="false"
             android:text="S"
             android:textSize="12sp"
             app:chipMinTouchTargetSize="0dp" />
